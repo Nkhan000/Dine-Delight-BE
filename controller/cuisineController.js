@@ -66,16 +66,6 @@ exports.getCuisineData = catchAsync(async (req, res, next) => {
       select: '-id -__v',
     })
     .select('-userId -__v -numberOfBookings -numberOfDeliveries');
-  // if (req.params.serviceName === 'delivery') {
-  // }
-  // if (req.params.serviceName === 'table_reservation') {
-  //   cuisine = await Cuisine.findById(req.params.id)
-  //     .populate({
-  //       path: 'reservation',
-  //       select: '-id -__v',
-  //     })
-  //     .select('-userId -__v -numberOfBookings -numberOfDeliveries');
-  // }
 
   res.status(200).json({
     status: 'success',

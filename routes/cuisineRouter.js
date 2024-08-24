@@ -91,9 +91,6 @@ router.route('/delivery/new').post(deliveryController.createADelivery);
 router
   .route('/delivery/get-one/:userId')
   .get(deliveryController.getADeliveryData);
-// router
-//   .route('/:deliveryId/get-delivery')
-//   .get(deliveryController.getDeliveryData);
 
 // ---------------- DELIVERY ROUTEES FOR A CUISINE (BUSINESS) --------------------- //
 router

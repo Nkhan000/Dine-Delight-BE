@@ -1,15 +1,12 @@
 const Cuisine = require('./../models/cuisineModel');
-// const APIFeatures = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
-// const AppError = require('./../utils/appError');
-// const Reservation = require('../models/reservationModel');
 const FoodMenu = require('../models/foodItemModal');
 const Delivery = require('../models/deliveryModel');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 
 exports.createADelivery = catchAsync(async (req, res, next) => {
-  let foodMenu = await FoodMenu.find();
+  // let foodMenu = await FoodMenu.find();
   const allCuisines = await Cuisine.find();
   const orderObject = req.body;
 
@@ -41,7 +38,6 @@ exports.createADelivery = catchAsync(async (req, res, next) => {
   await Promise.all(
     newOrderObj.map(async (order) => {
       const newDelivery = await Delivery.create(order);
-      // console.log(user);
 
       await User.findByIdAndUpdate(
         { _id: user.id },

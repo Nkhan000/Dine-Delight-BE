@@ -136,30 +136,11 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  // // VERIFICATION OF TOKEN
-  // // synchronus way of verification
-  // // const decode = jwt.verify(token, process.env.JWT_SECRET);
-  // const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-
-  // // Check if user was deleted after the token was issued
-  // const currUser = await User.findById(decode.id);
-  // if (!currUser) {
-  //   return next(
-  //     new AppError('User belonging to this TOKEN does not exist', 401),
-  //   );
-  // }
-
-  // // Check if the password was changed in the mean time
-  // // console.log(currUser.passwordChangedAfter(decode.iat));
-  // if (currUser.passwordChangedAfter(decode.iat)) {
-  //   return next(
-  //     new AppError('Password was changed recently. Please login again', 401),
-  //   );
-  // }
+  // VERIFICATION OF TOKEN
   const currUser = await getUserDataFromJwt(token, next);
   // ALLOW ACCESS TO THE PROTECTED ROUTE
   req.user = currUser;
-  // console.log(req.user);
+
   next();
 });
 

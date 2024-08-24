@@ -4,9 +4,3 @@ module.exports = (fn) => {
     // fn(req, res, next).catch(err => next(err)); //same as above
   };
 };
-
-// exports.catchAsync = (fn) => {
-//   return (req, res, next) => {
-//     fn(req, res, next).catch(next);
-//   };
-// };

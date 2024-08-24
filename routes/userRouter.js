@@ -6,7 +6,6 @@ const OAuthController = require('../controller/OAuthController');
 
 const router = express.Router();
 
-// router.post('/set-cookie', authController.setCookies);
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 router.get('/get-user', authController.protect, authController.getUserData);
@@ -22,11 +21,5 @@ router.patch(
   authController.protect,
   authController.updatePassword,
 );
-// router.post('/auth/google', OAuthController.authGoogle);
-// router.get('/auth/google/callback', OAuthController.authGoogleCallback);
-// router.post('/auth/google', OAuthController.googleLogin);
-// router.get('/protected', OAuthController.retreiveData);
-
-// router.route('/').get(userController.getAllUsers);
 
 module.exports = router;
