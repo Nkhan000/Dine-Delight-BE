@@ -51,6 +51,14 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  hasUserPremium: {
+    type: Boolean,
+    default: false,
+  },
+  remainingBatchOrders: {
+    type: Number,
+    default: 1,
+  },
   verified: {
     type: Boolean,
     validate: {

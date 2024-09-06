@@ -6,19 +6,18 @@ const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 
 exports.createADelivery = catchAsync(async (req, res, next) => {
-  // let foodMenu = await FoodMenu.find();
   const allCuisines = await Cuisine.find();
   const orderObject = req.body;
+  const user = req.user;
 
-  const user = await User.findById(orderObject.userId);
-  if (!user) {
-    return next(new AppError('No user with given ID was found', 404));
+  if (
+    !user.hasUserPremium &&
+    user.remainingBatchOrder === 0 &&
+    cart.length > 1
+  ) {
+    return next(new AppError('You don not have any batch orders left', 403));
   }
-  if (user.onGoingDeliveriesId.length == 3) {
-    return next(
-      new AppError('You already have enough on going orders right now', 403),
-    );
-  }
+
   // filtering out cuisines with invalid id
   orderObject.orders.cart = allCuisines
     .map((cuisine) =>
@@ -39,18 +38,27 @@ exports.createADelivery = catchAsync(async (req, res, next) => {
     newOrderObj.map(async (order) => {
       const newDelivery = await Delivery.create(order);
 
+      const updatedField = {
+        $push: { onGoingDeliveriesId: newDelivery._id },
+      };
+
+      if (newOrderObj.length > 1) {
+        updatedField.remainingBatchOrders = 0;
+      }
+
       await User.findByIdAndUpdate(
         { _id: user.id },
-        {
-          $push: { onGoingDeliveriesId: newDelivery._id },
-        },
+        updatedField,
+        // {
+        //   $push: { onGoingDeliveriesId: newDelivery._id },
+        // },
       );
     }),
   );
 
   res.status(200).json({
     status: 'success',
-    newOrderObj,
+    // newOrderObj,
   });
 });
 

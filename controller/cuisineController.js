@@ -6,7 +6,8 @@ const Reservation = require('../models/reservationModel');
 const FoodMenu = require('../models/foodItemModal');
 const Delivery = require('../models/deliveryModel');
 const User = require('../models/userModel');
-const BookingMenu = require('../models/bookingsMenuModel');
+// const BookingMenu = require('../models/bookingsVenueModel');
+const VenuesMenu = require('../models/bookingsVenueModel');
 
 exports.cuisineExist = catchAsync(async (req, res, next) => {
   const cuisine = await Cuisine.findById(req.params.id);
@@ -62,7 +63,7 @@ exports.getCuisineData = catchAsync(async (req, res, next) => {
   let cuisine;
   cuisine = await Cuisine.findById(req.params.id)
     .populate({
-      path: 'foodMenu bookingsMenu',
+      path: 'foodMenu venueMenu',
       select: '-id -__v',
     })
     .select('-userId -__v -numberOfBookings -numberOfDeliveries');
@@ -106,7 +107,8 @@ exports.updateCuisine = catchAsync(async (req, res, next) => {
 });
 
 exports.addItemsToMenu = catchAsync(async (req, res, next) => {
-  const foodMenu = await FoodMenu.findOne({ cuisineId: req.params.id });
+  const user = req.user;
+  const foodMenu = await FoodMenu.findOne({ cuisineId: user.cuisineId });
   if (foodMenu.foodItems.forEach((item) => item.name === req.body.name)) {
     return next(new AppError('An item with same name already exists', 403));
   }
@@ -122,7 +124,8 @@ exports.addItemsToMenu = catchAsync(async (req, res, next) => {
 });
 
 exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
-  const foodMenu = await FoodMenu.findOne({ cuisineId: req.params.id });
+  const user = req.user;
+  const foodMenu = await FoodMenu.findOne({ cuisineId: user.id });
 
   const IDsArray = Object.values(req.body);
   foodMenu.foodItems = foodMenu.foodItems.filter(
@@ -136,10 +139,7 @@ exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
 });
 
 exports.createACuisine = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.params.userId);
-  if (req.user.email !== user.email) {
-    return next(new AppError('Please be logged in to continue', 401));
-  }
+  const user = req.user;
   const cuisineExist = await Cuisine.findOne({ userId: user.id });
   if (cuisineExist) {
     return next(
@@ -157,12 +157,12 @@ exports.createACuisine = catchAsync(async (req, res, next) => {
     newCuisine.foodMenu = newFoodMenu._id;
     newCuisine.numberOfDeliveries = 0;
   }
-  if (newCuisine.services.includes('reservation')) {
-    const newBookingMenu = await BookingMenu.create({
+  if (newCuisine.services.includes('venue')) {
+    const newVenueMenu = await VenuesMenu.create({
       bookingItems: [],
       cuisineId: newCuisine.id,
     });
-    newCuisine.bookingsMenu = newBookingMenu._id;
+    newCuisine.venueMenu = newVenueMenu._id;
     newCuisine.numberOfReservation = 0;
   }
   newCuisine.userId = user.id;
@@ -244,9 +244,10 @@ exports.getService = catchAsync(async (req, res, next) => {
 });
 
 //BOOKINGS CONTROLLLERS
-exports.addBookingItem = catchAsync(async (req, res, next) => {
-  const cuisineId = req.params.id;
-  const bookingsMenu = await BookingMenu.findOne({ cuisineId });
+exports.addVenueItem = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const cuisineId = user.cuisineId;
+  const bookingsMenu = await VenuesMenu.findOne({ cuisineId });
   if (!bookingsMenu)
     return next(new AppError('No bookings menu found for given cuisine', 404));
   console.log(bookingsMenu.bookingItems);

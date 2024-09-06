@@ -146,9 +146,9 @@ const cuisineSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'FoodMenu',
   },
-  bookingsMenu: {
+  venueMenu: {
     type: mongoose.Schema.ObjectId,
-    ref: 'BookingsMenu',
+    ref: 'VenuesMenu',
   },
   totalReservations: {
     type: mongoose.Schema.ObjectId,

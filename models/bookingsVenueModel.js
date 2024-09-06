@@ -33,5 +33,5 @@ const bookingsMenuSchema = new mongoose.Schema({
     ref: 'Cuisine',
   },
 });
-const BookingsMenu = mongoose.model('BookingsMenu', bookingsMenuSchema);
-module.exports = BookingsMenu;
+const VenuesMenu = mongoose.model('VenuesMenu', bookingsMenuSchema);
+module.exports = VenuesMenu;

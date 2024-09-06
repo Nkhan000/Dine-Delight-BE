@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.route('/').get(cuisineController.getAllCuisines);
 router
-  .route('/:userId')
+  .route('/create-new-cuisine')
   .post(authController.protect, cuisineController.createACuisine);
 
 // CREATE A CUSINE
@@ -39,8 +39,8 @@ router
 // FOOD MENU
 
 router
-  .route('/update-menu-items/:id')
-  .post(cuisineController.cuisineExist, cuisineController.addItemsToMenu)
+  .route('/update-menu-items')
+  .post(authController.protect, cuisineController.addItemsToMenu)
   .patch(cuisineController.cuisineExist, cuisineController.removeItemsFromMenu);
 
 // -----------------REVIEW ROUTES FOR A CUISINES-------------------- //
@@ -59,7 +59,9 @@ router
 router.route('/get-review/:reviewId').get(reviewController.getAReview);
 
 // ---------------- BOOKING ITEMS AND BOOKINGS ROUTES FOR A CUISINE --------------------- //
-router.route('/:id/newBookingItem').post(cuisineController.addBookingItem);
+router
+  .route('/add-new-venue')
+  .post(authController.protect, cuisineController.addVenueItem);
 
 // ---------------- RESERVATION ROUTEES FOR A CUISINE --------------------- //
 
@@ -87,7 +89,9 @@ router
 
 // ---------------- DELIVERY ROUTEES FOR A CUISINE --------------------- //
 
-router.route('/delivery/new').post(deliveryController.createADelivery);
+router
+  .route('/delivery/new')
+  .post(authController.protect, deliveryController.createADelivery);
 router
   .route('/delivery/get-one/:userId')
   .get(deliveryController.getADeliveryData);
