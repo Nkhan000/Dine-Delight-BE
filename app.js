@@ -1,6 +1,8 @@
 const express = require('express');
 const morgan = require('morgan');
 const cuisineRoute = require('./routes/cuisineRouter');
+// const reservationRoute = require('./routes/reservationRouter');
+const venueRoute = require('./routes/venueBookingRouter');
 const reservationRoute = require('./routes/reservationRouter');
 const OAuthRoute = require('./routes/OAuthRouter');
 const userRoute = require('./routes/userRouter');
@@ -99,7 +101,8 @@ app.use(
 app.use('/api/v1/cuisines', cuisineRoute);
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/auth', OAuthRoute);
-app.use('/api/v1/reservations', reservationRoute);
+// app.use('/api/v1/reservations', reservationRoute);
+app.use('/api/v1/venue', venueRoute);
 
 app.use((req, res, next) => {
   console.log('Cookies:', req.cookies);

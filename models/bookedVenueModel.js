@@ -7,26 +7,46 @@ const BookedVenueSchema = new mongoose.Schema({
   },
   bookedOnDate: {
     type: Date,
-    required: true,
-    default: true,
+    // required: true,
+    default: Date.now(),
   },
-  bookingDate: {
+  startDate: {
     type: Date,
     required: true,
   },
-  price: {
+  status: {
+    type: String,
+    default: 'unconfirmed',
+    enums: {
+      values: ['unconfirmed', 'confirmed', 'canceled'],
+      message: 'Status can be unconfirmed, confirmed or canceled',
+    },
+  },
+  endDate: {
+    type: Date,
+    required: true,
+  },
+  numOfDays: {
+    type: Number,
+    required: true,
+  },
+  totalPrice: {
     type: String,
     required: true,
   },
   hasPaid: {
     type: Boolean,
-    required: true,
+    default: false,
   },
   userId: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
   },
-  partySize: {
+  cuisineId: {
+    type: mongoose.Schema.ObjectId,
+    required: true,
+  },
+  aprPartySize: {
     type: String,
     required: true,
   },
@@ -35,6 +55,17 @@ const BookedVenueSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
+  otpCode: {
+    type: Number,
+  },
+});
+
+BookedVenueSchema.pre('save', function (next) {
+  if (this.isNew) {
+    const otp = Math.floor(Math.random() * 10000);
+    this.otpCode = otp;
+  }
+  next();
 });
 
 const BookedVenue = mongoose.model('BookingsVenue', BookedVenueSchema);
