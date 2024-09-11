@@ -93,8 +93,8 @@ router
   .route('/delivery/new')
   .post(authController.protect, deliveryController.createADelivery);
 router
-  .route('/delivery/get-one/:userId')
-  .get(deliveryController.getADeliveryData);
+  .route('/delivery/get-one')
+  .get(authController.protect, deliveryController.getADeliveryData);
 
 // ---------------- DELIVERY ROUTEES FOR A CUISINE (BUSINESS) --------------------- //
 router

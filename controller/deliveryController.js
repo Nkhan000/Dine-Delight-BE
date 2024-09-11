@@ -63,8 +63,8 @@ exports.createADelivery = catchAsync(async (req, res, next) => {
 });
 
 exports.getADeliveryData = catchAsync(async (req, res, next) => {
-  const userId = req.params.userId;
-  const delivery = await Delivery.find({ userId: userId });
+  const user = req.user;
+  const delivery = await Delivery.find({ userId: user.id });
 
   res.status(200).json({
     status: 'success',

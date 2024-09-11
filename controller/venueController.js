@@ -36,7 +36,10 @@ exports.createAVenueBooking = catchAsync(async (req, res, next) => {
 
 exports.getAVenueBookingDetail = catchAsync(async (req, res, next) => {
   const user = req.user;
-  const bookedVenue = await BookedVenue.findOne({ userId: user.id });
+  const bookedVenue = await BookedVenue.findOne({ userId: user.id }).populate({
+    path: 'cuisineId userId',
+    select: 'name',
+  });
 
   res.status(200).json({
     status: 'success',

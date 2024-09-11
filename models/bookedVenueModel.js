@@ -41,9 +41,11 @@ const BookedVenueSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
+    required: true,
   },
   cuisineId: {
     type: mongoose.Schema.ObjectId,
+    ref: 'Cuisine',
     required: true,
   },
   aprPartySize: {
