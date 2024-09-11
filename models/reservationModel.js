@@ -6,24 +6,16 @@ const tableReservationSchema = new mongoose.Schema({
     type: Number,
     ref: 'Cuisine',
   },
-  hours: {
-    type: Number,
-    required: true,
-    select: false,
-  },
-  minutes: {
-    type: Number,
-    required: true,
-    select: false,
-  },
-  date: {
+
+  reservationDate: {
     type: Date,
     required: true,
     default: Date.now(),
     select: false,
   },
-  reserveDate: {
+  reservedOnDate: {
     type: Date,
+    default: Date.now(),
   },
   priority: {
     type: Boolean,
@@ -35,7 +27,7 @@ const tableReservationSchema = new mongoose.Schema({
     min: [2, 'party size must be atleast 2 people'],
     max: [12, 'party size must not exceed more than 12 people'],
   },
-  securityCode: {
+  otpCode: {
     type: Number,
   },
   hasCheckedIn: {
@@ -45,11 +37,15 @@ const tableReservationSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: {
-      values: ['not arrived', 'arrived', 'canceled'],
+      values: ['unconfirmed', 'confirmed', 'canceled'],
       message:
         'Only not arrived, arrived and canceled in allowed in status field',
     },
     default: 'not arrived',
+  },
+  remarks: {
+    type: String,
+    required: true,
   },
   cuisineId: {
     type: mongoose.Schema.ObjectId,
@@ -63,13 +59,13 @@ const tableReservationSchema = new mongoose.Schema({
 
 // MIDDLEWARES
 // to set a reserve date with given hours and minutes
-tableReservationSchema.pre('save', function (next) {
-  const reserveDate = new Date(this.date);
-  reserveDate.setUTCHours(this.hours);
-  reserveDate.setUTCMinutes(this.minutes);
-  this.reserveDate = reserveDate;
-  next();
-});
+// tableReservationSchema.pre('save', function (next) {
+//   const reserveDate = new Date(this.date);
+//   reserveDate.setUTCHours(this.hours);
+//   reserveDate.setUTCMinutes(this.minutes);
+//   this.reserveDate = reserveDate;
+//   next();
+// });
 
 // to set a security code for further confirmation
 // tableReservationSchema.pre('save', function (next) {
