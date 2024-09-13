@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 // const slugify = require('slugify');
 
 const tableReservationSchema = new mongoose.Schema({
-  price: {
-    type: Number,
-    ref: 'Cuisine',
-  },
+  // price: {
+  //   type: Number,
+  //   ref: 'Cuisine',
+  // },
 
   reservationDate: {
     type: Date,
@@ -42,6 +42,10 @@ const tableReservationSchema = new mongoose.Schema({
         'Only not arrived, arrived and canceled in allowed in status field',
     },
     default: 'not arrived',
+  },
+  tableType: {
+    type: String,
+    required: true,
   },
   remarks: {
     type: String,
