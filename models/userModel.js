@@ -55,6 +55,12 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  reservationOTP: {
+    type: Number,
+  },
+  reservationOTPCreatedAt: {
+    type: Date,
+  },
   remainingBatchOrders: {
     type: Number,
     default: 1,
@@ -140,6 +146,25 @@ userSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
   this.passwordChangedAt = Date.now() - 1000;
   next();
+});
+
+// midleware to delete the otp after ten minutes of issue
+userSchema.post('save', async function (doc) {
+  if (doc.reservationOTP) {
+    setTimeout(
+      async () => {
+        try {
+          await User.findByIdAndUpdate(doc._id, {
+            reservationOTP: 0,
+            reservationOTPCreatedAt: 0,
+          });
+        } catch (err) {
+          console.log('Error reseting the opt', err);
+        }
+      },
+      1000 * 60 * 10,
+    );
+  }
 });
 
 // INstance method

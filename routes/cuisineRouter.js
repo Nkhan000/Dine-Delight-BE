@@ -66,16 +66,17 @@ router
 // ---------------- RESERVATION ROUTEES FOR A CUISINE --------------------- //
 
 // GET All reservations for a single cuisine
-router.get(
-  '/reservations/all-reservations/:id',
-  authController.protect,
-  reservationController.getAllReservationsForBussiness,
-);
+// router
+//   .route('/reservations/all-reservations/:id')
+//   .get(
+//     authController.protect,
+//     reservationController.getAllReservationsForBussiness,
+//   );
 
 // GET a reservation by ID for a cuisine
-router
-  .route('/reservations/:reservationId')
-  .get(authController.protect, reservationController.getAReservation);
+// router
+//   .route('/reservations/:reservationId')
+//   .get(authController.protect, reservationController.getAReservation);
 
 // CREATE a new reservation from user
 router

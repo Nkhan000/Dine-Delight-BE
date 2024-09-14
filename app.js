@@ -101,7 +101,7 @@ app.use(
 app.use('/api/v1/cuisines', cuisineRoute);
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/auth', OAuthRoute);
-// app.use('/api/v1/reservations', reservationRoute);
+app.use('/api/v1/reservations', reservationRoute);
 app.use('/api/v1/venue', venueRoute);
 
 app.use((req, res, next) => {

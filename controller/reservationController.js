@@ -4,22 +4,25 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 // const mongoose = require('mongoose');
 const APIFeatures = require('../utils/apiFeatures');
+const User = require('../models/userModel');
+const sendEmail = require('../utils/emailHandler');
 
 // GET ALL RESERVATIONS FOR ADMIN
 exports.getAllReservations = catchAsync(async (req, res, next) => {
-  if (req.user.role !== 'admin')
-    return next(new AppError('You are not allowed perform this task', 401));
-  const reservationsData = await Reservation.find();
+  // if (req.user.role !== 'admin')
+  //   return next(new AppError('You are not allowed perform this task', 401));
+  // const reservationsData = await Reservation.find();
 
   res.status(200).json({
     status: 'success',
-    data: {
-      reservationsData,
-    },
+    // data: {
+    //   reservationsData,
+    // },
   });
 });
 
 // GET ALL RESERVATIONS FOR BUSINESS
+/*
 exports.getAllReservationsForBussiness = catchAsync(async (req, res, next) => {
   const cuisineId = req.params.id;
   // console.log(cuisineId === req.user._id);
@@ -59,9 +62,10 @@ exports.getAllReservationsForBussiness = catchAsync(async (req, res, next) => {
       allReservations,
     },
   });
-});
+});*/
 
 // GET OR FIND A RESERVATION BY ID
+/*
 exports.getAReservation = catchAsync(async (req, res, next) => {
   // Should only be accessible by admin, cuisine owner and customer
   // must not be accessible by other cuisines or customer
@@ -87,6 +91,53 @@ exports.getAReservation = catchAsync(async (req, res, next) => {
     data: {
       reservation,
     },
+  });
+});*/
+
+exports.sendVerificationCode = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const randomCode = Math.floor(Math.random() * 1_000_000);
+  user.reservationOTP = randomCode;
+  user.reservationOTPCreatedAt = Date.now();
+
+  const message = `This is your SECURITY CODE to verify your reservation. Do not share this with anyone. ${randomCode}`;
+  await Promise.all([
+    user.save({ validateBeforeSave: false }),
+    sendEmail({
+      email: user.email,
+      subject:
+        'DineDelight : Verification code for reservation (VALID FOR 10 MINS)',
+      message,
+    }),
+  ]);
+
+  res.status(201).json({
+    status: 'success',
+    message: `verification code was sent`,
+  });
+});
+
+exports.verifyVerificationCode = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const savedCode = user.reservationOTP;
+
+  const receivedCode = req.body.OTPCode;
+
+  if (savedCode === 0) {
+    return next(
+      new AppError('Your OTP code has expired. Try Again with new one', 403),
+    );
+  }
+  if (receivedCode !== savedCode) {
+    return next(new AppError('OTP code did not matched', 403));
+  }
+
+  user.reservationOTP = 0;
+  user.reservationOTPCreatedAt = 0;
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    status: 'success',
   });
 });
 
