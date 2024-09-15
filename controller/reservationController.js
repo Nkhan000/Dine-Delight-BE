@@ -129,7 +129,12 @@ exports.verifyVerificationCode = catchAsync(async (req, res, next) => {
     );
   }
   if (receivedCode !== savedCode) {
-    return next(new AppError('OTP code did not matched', 403));
+    return next(
+      new AppError(
+        `OTP code did not matched : ${receivedCode} : ${savedCode}`,
+        403,
+      ),
+    );
   }
 
   user.reservationOTP = 0;

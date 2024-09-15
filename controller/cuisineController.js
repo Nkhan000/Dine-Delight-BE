@@ -78,7 +78,7 @@ exports.getCuisineData = catchAsync(async (req, res, next) => {
 
 exports.getCuisineForBusiness = catchAsync(async (req, res, next) => {
   const user = req.user;
-  console.log(req.user);
+  // console.log(req.user);
   const cuisine = await Cuisine.findById(req.params.id);
   res.status(200).json({
     status: 'success',
@@ -250,11 +250,11 @@ exports.addVenueItem = catchAsync(async (req, res, next) => {
   const bookingsMenu = await VenuesMenu.findOne({ cuisineId });
   if (!bookingsMenu)
     return next(new AppError('No bookings menu found for given cuisine', 404));
-  console.log(bookingsMenu.bookingItems);
+  // console.log(bookingsMenu.bookingItems);
 
   bookingsMenu.bookingItems.push(req.body);
   await bookingsMenu.save();
-  console.log(req.body);
+  // console.log(req.body);
   res.status(200).json({
     status: 'success',
     result: bookingsMenu,
