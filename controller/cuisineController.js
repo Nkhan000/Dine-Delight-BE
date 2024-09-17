@@ -79,7 +79,7 @@ exports.getCuisineData = catchAsync(async (req, res, next) => {
 exports.getCuisineForBusiness = catchAsync(async (req, res, next) => {
   const user = req.user;
   // console.log(req.user);
-  const cuisine = await Cuisine.findById(req.params.id);
+  const cuisine = await Cuisine.findById(user.cuisineId);
   res.status(200).json({
     status: 'success',
     data: cuisine,

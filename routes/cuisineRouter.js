@@ -21,11 +21,7 @@ router
 // IMPLEMENT A ROUTE TO GET A CUISINE DATA FOR BUSINESS DASHBOARD CONTAINING ALL THE USEFULL INFORMATION AND INSIGHTS OF THE CUISINE
 router
   .route('/businessProfile')
-  .get(
-    cuisineController.cuisineExist,
-    authController.protect,
-    cuisineController.getCuisineForBusiness,
-  );
+  .get(authController.protect, cuisineController.getCuisineForBusiness);
 
 // Get All cuisines with similar services
 router.route('/service/:serviceName').get(cuisineController.getService);
