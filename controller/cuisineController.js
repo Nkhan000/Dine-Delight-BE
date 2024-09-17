@@ -254,7 +254,6 @@ exports.addVenueItem = catchAsync(async (req, res, next) => {
 
   bookingsMenu.bookingItems.push(req.body);
   await bookingsMenu.save();
-  // console.log(req.body);
   res.status(200).json({
     status: 'success',
     result: bookingsMenu,
