@@ -155,8 +155,7 @@ userSchema.post('save', async function (doc) {
       async () => {
         try {
           await User.findByIdAndUpdate(doc._id, {
-            reservationOTP: 0,
-            reservationOTPCreatedAt: 0,
+            $unset: { reservationOTP: 1, reservationOTPCreatedAt: 0 },
           });
         } catch (err) {
           console.log('Error reseting the opt', err);
@@ -166,8 +165,6 @@ userSchema.post('save', async function (doc) {
     );
   }
 });
-
-// INstance method
 
 // TO COMPARE THE ENCRYPTED PASSWORD WITH THE PROVIDED PASSWORD
 userSchema.methods.correctPassword = async function (

@@ -54,35 +54,10 @@ router
 // GET a review for a cuisine
 router.route('/get-review/:reviewId').get(reviewController.getAReview);
 
-// ---------------- BOOKING ITEMS AND BOOKINGS ROUTES FOR A CUISINE --------------------- //
+// ---------------- VENUE BOOKING ITEMS AND BOOKINGS ROUTES FOR A CUISINE --------------------- //
 router
   .route('/add-new-venue')
   .post(authController.protect, cuisineController.addVenueItem);
-
-// ---------------- RESERVATION ROUTEES FOR A CUISINE --------------------- //
-
-// GET All reservations for a single cuisine
-// router
-//   .route('/reservations/all-reservations/:id')
-//   .get(
-//     authController.protect,
-//     reservationController.getAllReservationsForBussiness,
-//   );
-
-// GET a reservation by ID for a cuisine
-// router
-//   .route('/reservations/:reservationId')
-//   .get(authController.protect, reservationController.getAReservation);
-
-// CREATE a new reservation from user
-router
-  .route('/:id/reservations/new-reservation')
-  .post(authController.protect, reservationController.createAReservation);
-
-// VERIFY/CANCEL functionality for reservations
-router
-  .route('/reservations/verify-reservation/:reservationId')
-  .patch(authController.protect, reservationController.verifyReservation);
 
 // ---------------- DELIVERY ROUTEES FOR A CUISINE --------------------- //
 

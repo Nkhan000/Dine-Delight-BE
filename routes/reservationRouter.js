@@ -13,4 +13,11 @@ router
   .get(authController.protect, reservationController.sendVerificationCode)
   .post(authController.protect, reservationController.verifyVerificationCode);
 
+router
+  .route('/create-new-reservation')
+  .post(authController.protect, reservationController.createAReservation);
+router
+  .route('/all-reservations')
+  .get(authController.protect, reservationController.getAllReservationByUserId);
+
 module.exports = router;

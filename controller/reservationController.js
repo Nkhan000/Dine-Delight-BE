@@ -149,39 +149,35 @@ exports.verifyVerificationCode = catchAsync(async (req, res, next) => {
 // CREATE A RESERVATION IN A CUISINE
 exports.createAReservation = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
-  const cuisineId = req.params.id;
-  const cuisine = await Cuisine.findById(cuisineId);
 
-  const allReservations = await Reservation.find({ userId });
-  if (allReservations.length > 1) {
-    return next(
-      new AppError(
-        'You can not make multiple reservations at a same time. Go to our /FAQ page for more info',
-        403,
-      ),
-    );
-  }
-  // Random 4 digit security code
-  const randomSecurityCode = Math.floor(Math.random() * 10000)
-    .toString()
-    .padStart(4, '0');
+  const randomSecurityCode = Math.floor(Math.random() * 100000);
 
   const newReqBody = {
     ...req.body,
-    cuisineId,
     userId,
-    securityCode: +randomSecurityCode,
+    otpCode: +randomSecurityCode,
   };
-
-  cuisine.numberOfReservations += 1;
-  await cuisine.save();
-
   const newReservation = await Reservation.create(newReqBody);
+  const cuisine = await Cuisine.findByIdAndUpdate(req.body.cuisineId, {
+    $push: { onGoingReservationsId: newReservation._id },
+  });
+  if (!cuisine) return next(new AppError('Error finding cuisine', 404));
   res.status(201).json({
     status: 'success',
-    data: {
-      newReservation,
-    },
+    newReservation,
+    // data: {
+    // },
+  });
+});
+
+// SENDS ALL THE RESERVATION OF A USER
+exports.getAllReservationByUserId = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const allReservations = await Reservation.find({ userId: user._id });
+
+  res.status(200).json({
+    status: 'success',
+    allReservations,
   });
 });
 

@@ -132,7 +132,18 @@ const cuisineSchema = new mongoose.Schema({
   highlightImages: {
     type: [String],
   },
-
+  availableTableReservationTime: {
+    type: [String],
+    required: true,
+  },
+  tableTypeOptions: {
+    type: [String],
+    required: true,
+  },
+  reservationPartySizeOptions: {
+    type: [Number],
+    required: true,
+  },
   onGoingDeliveriesId: {
     type: [mongoose.Schema.ObjectId],
     ref: 'Delivery',
@@ -142,6 +153,10 @@ const cuisineSchema = new mongoose.Schema({
     ref: 'BookingsMenu',
   },
 
+  onGoingReservationsId: {
+    type: [mongoose.Schema.ObjectId],
+    ref: 'Reservations',
+  },
   foodMenu: {
     type: mongoose.Schema.ObjectId,
     ref: 'FoodMenu',

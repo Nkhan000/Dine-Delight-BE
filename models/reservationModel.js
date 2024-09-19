@@ -21,7 +21,7 @@ const tableReservationSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  partySize: {
+  aprPartySize: {
     type: Number,
     required: true,
     min: [2, 'party size must be atleast 2 people'],
@@ -41,7 +41,7 @@ const tableReservationSchema = new mongoose.Schema({
       message:
         'Only not arrived, arrived and canceled in allowed in status field',
     },
-    default: 'not arrived',
+    default: 'unconfirmed',
   },
   tableType: {
     type: String,
@@ -82,5 +82,10 @@ const tableReservationSchema = new mongoose.Schema({
 // });
 
 //MODEL
+tableReservationSchema.index(
+  { reservationDate: 1 },
+  { expireAfterSeconds: 300 },
+);
 const Reservation = mongoose.model('Reservation', tableReservationSchema);
+Reservation.createIndexes();
 module.exports = Reservation;
