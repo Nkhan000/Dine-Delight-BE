@@ -2,17 +2,21 @@ const mongoose = require('mongoose');
 // const slugify = require('slugify');
 
 const tableReservationSchema = new mongoose.Schema({
-  // price: {
-  //   type: Number,
-  //   ref: 'Cuisine',
-  // },
-
+  total: {
+    type: Number,
+    required: true,
+  },
   reservationDate: {
     type: Date,
     required: true,
-    default: Date.now(),
-    select: false,
   },
+  reservationTimeStr: {
+    type: String,
+    required: true,
+  },
+  // reservationDateStr: {
+  //   type :
+  // }
   reservedOnDate: {
     type: Date,
     default: Date.now(),
@@ -84,7 +88,7 @@ const tableReservationSchema = new mongoose.Schema({
 //MODEL
 tableReservationSchema.index(
   { reservationDate: 1 },
-  { expireAfterSeconds: 300 },
+  { expireAfterSeconds: 60 * 60 * 24 * 7 },
 );
 const Reservation = mongoose.model('Reservation', tableReservationSchema);
 Reservation.createIndexes();

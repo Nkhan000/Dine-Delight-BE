@@ -10,7 +10,7 @@ const BookedVenueSchema = new mongoose.Schema({
     // required: true,
     default: Date.now(),
   },
-  startDate: {
+  venueBookingStartDate: {
     type: Date,
     required: true,
   },
@@ -22,7 +22,7 @@ const BookedVenueSchema = new mongoose.Schema({
       message: 'Status can be unconfirmed, confirmed or canceled',
     },
   },
-  endDate: {
+  venueBookingEndDate: {
     type: Date,
     required: true,
   },
@@ -70,5 +70,10 @@ BookedVenueSchema.pre('save', function (next) {
   next();
 });
 
-const BookedVenue = mongoose.model('BookingsVenue', BookedVenueSchema);
+BookedVenueSchema.index(
+  { venueBookingStartDate: 1 },
+  { expireAfterSeconds: 60 * 60 * 24 * 7 },
+);
+
+const BookedVenue = mongoose.model('BookedVenue', BookedVenueSchema);
 module.exports = BookedVenue;

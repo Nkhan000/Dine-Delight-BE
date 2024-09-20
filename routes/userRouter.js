@@ -22,4 +22,10 @@ router.patch(
   authController.updatePassword,
 );
 
+router.get(
+  '/get-all-orders',
+  authController.protect,
+  userController.getAllOrders,
+);
+
 module.exports = router;

@@ -5,24 +5,24 @@ const AppError = require('../utils/appError');
 
 exports.createAVenueBooking = catchAsync(async (req, res, next) => {
   const user = req.user;
-  const bookedVenue = await BookedVenue.findOne({ userId: user.id });
+  // const bookedVenue = await BookedVenue.findOne({ userId: user.id });
 
-  if (bookedVenue) {
-    return next(new AppError('User already have pending venue booking', 403));
-  }
+  // if (bookedVenue) {
+  //   return next(new AppError('User already have pending venue booking', 403));
+  // }
   const venueObj = { ...req.body, userId: user._id };
   const cuisineId = req.body.cuisineId;
   const venueId = req.body.venueId;
-  const foundVenue = await VenuesMenu.findOne({
-    cuisineId,
-  });
-  const bookingItem = foundVenue.bookingItems.filter(
-    (item) => item.id === venueId,
-  );
+  // const foundVenue = await VenuesMenu.findOne({
+  //   cuisineId,
+  // });
+  // const bookingItem = foundVenue.bookingItems.filter(
+  //   (item) => item.id === venueId,
+  // );
 
-  if (!bookingItem) {
-    return next(new AppError('No such venue was found, Try Again', 404));
-  }
+  // if (!bookingItem) {
+  //   return next(new AppError('No such venue was found, Try Again', 404));
+  // }
 
   const newBookingItem = await BookedVenue.create(venueObj);
   await newBookingItem.save();

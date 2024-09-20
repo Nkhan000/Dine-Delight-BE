@@ -28,7 +28,7 @@ const deliverySchema = new mongoose.Schema({
     type: [orderItemSchema],
     required: true,
   },
-  date: {
+  deliveryDate: {
     type: Date,
     default: Date.now(),
   },
@@ -76,6 +76,10 @@ const deliverySchema = new mongoose.Schema({
     },
   },
 });
+deliverySchema.index(
+  { deliveryDate: 1 },
+  { expireAfterSeconds: 60 * 60 * 24 * 7 },
+);
 
 const Delivery = mongoose.model('Delivery', deliverySchema);
 
