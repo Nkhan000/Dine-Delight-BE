@@ -36,6 +36,18 @@ const deliverySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  type: {
+    type: String,
+    default: 'delivery',
+    enums: {
+      values: ['delivery'],
+      message: 'type can only be delivery',
+    },
+  },
+  remarks: {
+    type: String,
+    default: 'Delivery order has been placed',
+  },
   cuisineAddress: {
     type: String,
   },

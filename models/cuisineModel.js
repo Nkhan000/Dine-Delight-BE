@@ -1,43 +1,5 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-// const foodItemSchema = require('../models/foodItemModal');
-// const Reservation = require('./reservationModel');
-// const validator = require('validator');
-
-// const foodItemSchema = new mongoose.Schema({
-//   name: {
-//     type: String,
-//     required: true,
-//     unique: true,
-//   },
-//   price: {
-//     type: Number,
-//     required: true,
-//   },
-//   quantityPerServing: {
-//     type: String,
-//     required: true,
-//   },
-//   size: {
-//     type: String,
-//   },
-//   type: {
-//     type: String,
-//     required: true,
-//   },
-//   category: {
-//     type: String,
-//     required: true,
-//   },
-//   mainIngredients: {
-//     type: [String],
-//     required: true,
-//   },
-//   image: {
-//     type: String,
-//     default: './img/foodItem-momo-1.jpg',
-//   },
-// });
 
 const cuisineSchema = new mongoose.Schema({
   name: {
@@ -65,6 +27,7 @@ const cuisineSchema = new mongoose.Schema({
         this.services.includes('reservation') ? val : 0;
       },
     },
+    default: 25,
   },
   deliveryPrice: {
     type: Number,

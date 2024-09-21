@@ -22,6 +22,10 @@ const BookedVenueSchema = new mongoose.Schema({
       message: 'Status can be unconfirmed, confirmed or canceled',
     },
   },
+  remarks: {
+    type: String,
+    default: 'venue booking order has been placed',
+  },
   venueBookingEndDate: {
     type: Date,
     required: true,
@@ -47,6 +51,14 @@ const BookedVenueSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Cuisine',
     required: true,
+  },
+  type: {
+    type: String,
+    default: 'venue',
+    enums: {
+      values: ['venue'],
+      message: 'type can only be venue',
+    },
   },
   aprPartySize: {
     type: String,

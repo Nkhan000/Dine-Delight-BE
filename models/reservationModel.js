@@ -51,9 +51,21 @@ const tableReservationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  type: {
+    type: String,
+    default: 'reservation',
+    enums: {
+      values: ['reservation'],
+      message: 'type can only be reservation',
+    },
+  },
   remarks: {
     type: String,
     required: true,
+    default: 'reservation order has been placed',
+  },
+  additionalRequest: {
+    type: String,
   },
   cuisineId: {
     type: mongoose.Schema.ObjectId,

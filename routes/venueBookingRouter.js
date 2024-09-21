@@ -6,7 +6,10 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(authController.protect, venueController.getAVenueBookingDetail)
   .post(authController.protect, venueController.createAVenueBooking);
+
+router
+  .route('/')
+  .get(authController.protect, venueController.getAVenueBookingDetail);
 
 module.exports = router;

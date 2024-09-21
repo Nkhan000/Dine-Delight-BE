@@ -4,45 +4,43 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
 exports.createAVenueBooking = catchAsync(async (req, res, next) => {
-  const user = req.user;
-  // const bookedVenue = await BookedVenue.findOne({ userId: user.id });
-
-  // if (bookedVenue) {
-  //   return next(new AppError('User already have pending venue booking', 403));
-  // }
-  const venueObj = { ...req.body, userId: user._id };
+  const userId = req.user._id;
   const cuisineId = req.body.cuisineId;
-  const venueId = req.body.venueId;
-  // const foundVenue = await VenuesMenu.findOne({
-  //   cuisineId,
-  // });
-  // const bookingItem = foundVenue.bookingItems.filter(
-  //   (item) => item.id === venueId,
-  // );
+  const venueObj = { ...req.body, userId };
+  const foundVenue = await VenuesMenu.findOne(
+    {
+      cuisineId,
+      bookingItems: { $elemMatch: { name: venueObj.name } },
+    },
+    { 'bookingItems.$': 1 },
+  );
 
-  // if (!bookingItem) {
-  //   return next(new AppError('No such venue was found, Try Again', 404));
-  // }
+  const selectedVenue = foundVenue.bookingItems[0];
 
-  const newBookingItem = await BookedVenue.create(venueObj);
-  await newBookingItem.save();
+  if (!selectedVenue) {
+    return next(new AppError('No Venue with selected ID was found', 404));
+  }
+  const newBooking = await BookedVenue.create(venueObj);
+
   res.status(201).json({
     status: 'success',
     message: 'New Booking has been made successfully',
-    newBooking: newBookingItem,
-    // venue,
+    newBooking,
   });
 });
 
 exports.getAVenueBookingDetail = catchAsync(async (req, res, next) => {
-  const user = req.user;
-  const bookedVenue = await BookedVenue.findOne({ userId: user.id }).populate({
-    path: 'cuisineId userId',
-    select: 'name',
-  });
+  const userId = req.user._id;
+  const bookedVenue = await BookedVenue.find({ userId });
+
+  // const bookedVenue = await BookedVenue.find({ userId }).populate({
+  //   path: 'cuisineId userId',
+  //   select: 'name address',
+  // });
 
   res.status(200).json({
     status: 'success',
     bookedVenue,
+    // bookedVenue,5
   });
 });
