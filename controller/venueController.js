@@ -14,29 +14,31 @@ exports.createAVenueBooking = catchAsync(async (req, res, next) => {
     },
     { 'bookingItems.$': 1 },
   );
-
-  const selectedVenue = foundVenue.bookingItems[0];
-
-  if (!selectedVenue) {
-    return next(new AppError('No Venue with selected ID was found', 404));
+  if (!foundVenue) {
+    return next(new AppError('Venue with given name not found', 404));
   }
+
+  // const selectedVenue = foundVenue.bookingItems[0];
+
   const newBooking = await BookedVenue.create(venueObj);
 
   res.status(201).json({
     status: 'success',
     message: 'New Booking has been made successfully',
+    // foundVenue,
+    // selectedVenue,
     newBooking,
   });
 });
 
 exports.getAVenueBookingDetail = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
-  const bookedVenue = await BookedVenue.find({ userId });
+  // const bookedVenue = await BookedVenue.find({ userId });
 
-  // const bookedVenue = await BookedVenue.find({ userId }).populate({
-  //   path: 'cuisineId userId',
-  //   select: 'name address',
-  // });
+  const bookedVenue = await BookedVenue.find({ userId }).populate({
+    path: 'cuisineId userId',
+    select: 'name address',
+  });
 
   res.status(200).json({
     status: 'success',
@@ -44,3 +46,5 @@ exports.getAVenueBookingDetail = catchAsync(async (req, res, next) => {
     // bookedVenue,5
   });
 });
+
+// routes to be implemented for businesses

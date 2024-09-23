@@ -108,24 +108,40 @@ exports.updateCuisine = catchAsync(async (req, res, next) => {
 
 exports.addItemsToMenu = catchAsync(async (req, res, next) => {
   const user = req.user;
-  const foodMenu = await FoodMenu.findOne({ cuisineId: user.cuisineId });
-  if (foodMenu.foodItems.forEach((item) => item.name === req.body.name)) {
-    return next(new AppError('An item with same name already exists', 403));
+  const cuisine = await Cuisine.findOne({ userId: user._id });
+  if (!cuisine) {
+    return next(new AppError('No cuisines found for the given username', 404));
   }
+  const foodMenu = await FoodMenu.findOne({ cuisineId: cuisine._id });
+  if (!foodMenu) {
+    return next(new AppError('No food menu found for the given cuisine', 404));
+  }
+
+  // Use 'some' to check for duplicate item names
+  const itemExists = foodMenu.foodItems.some(
+    (item) => item.name === req.body.name,
+  );
+  if (itemExists) {
+    return next(new AppError('An item with the same name already exists', 403));
+  }
+
+  // Add new food item and save the updated menu
   foodMenu.foodItems.push(req.body);
-  await foodMenu.save();
-  // console.log(foodMenu);
+  await foodMenu.save(); // This will persist the changes
+
   res.status(200).json({
     status: 'success',
     message: 'A food item was added to the menu',
     foodMenu,
-    // cuisine,
   });
 });
 
 exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
   const user = req.user;
   const foodMenu = await FoodMenu.findOne({ cuisineId: user.id });
+  if (!foodMenu) {
+    return next(new AppError('No food menu found for this user', 404));
+  }
 
   const IDsArray = Object.values(req.body);
   foodMenu.foodItems = foodMenu.foodItems.filter(
@@ -134,7 +150,7 @@ exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
   await foodMenu.save();
   res.status(200).json({
     status: 'success',
-    // message: `${foodMenu.length - cuisine.foodMenu.length > 1 ? 'Few food items were' : 'A Food item was'} removed from the menu`,
+    message: `food item from menu has been removed`,
   });
 });
 

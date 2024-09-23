@@ -23,26 +23,29 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 
 exports.getAllOrders = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
-  // console.log(user._id);
-  const deliveryOrders = await Delivery.find({ userId })
-    .select('deliveryDate type total cuisineId remarks -_id')
-    .populate({
-      path: 'cuisineId',
-      select: 'name -_id',
-    });
 
-  const reservationOrders = await Reservation.find({ userId })
-    .select('reservationDate type total cuisineId remarks -_id')
-    .populate({
-      path: 'cuisineId',
-      select: 'name -_id',
-    });
-  const bookedVenueOrders = await BookedVenue.find({ userId })
-    .select('venueBookingStartDate type total cuisineId remarks -_id')
-    .populate({
-      path: 'cuisineId',
-      select: 'name -_id',
-    });
+  const [deliveryOrders, reservationOrders, bookedVenueOrders] =
+    await Promise.all([
+      Delivery.find({ userId })
+        .select('deliveryDate type total cuisineId remarks -_id')
+        .populate({
+          path: 'cuisineId',
+          select: 'name -_id',
+        }),
+
+      Reservation.find({ userId })
+        .select('reservationDate type total cuisineId remarks -_id')
+        .populate({
+          path: 'cuisineId',
+          select: 'name -_id',
+        }),
+      BookedVenue.find({ userId })
+        .select('venueBookingStartDate type total cuisineId remarks -_id')
+        .populate({
+          path: 'cuisineId',
+          select: 'name -_id',
+        }),
+    ]);
 
   const ordersArr = [
     ...deliveryOrders,
@@ -51,21 +54,33 @@ exports.getAllOrders = catchAsync(async (req, res, next) => {
   ];
 
   const totalOrdersArr = ordersArr.sort((a, b) => {
-    // Get the date for sorting - prefer 'deliveryDate', fallback to 'reservationDate'
-    const dateA = new Date(a.deliveryDate || a.reservationDate).getTime();
-    const dateB = new Date(b.deliveryDate || b.reservationDate).getTime();
-
-    // If both dates are missing, consider them equal
-    if (!a.deliveryDate && !a.reservationDate) return 1;
-    if (!b.deliveryDate && !b.reservationDate) return -1;
-
-    // Sort in descending order (most recent first)
-    return dateB - dateA;
+    const dateA = new Date(
+      a.deliveryDate ?? a.reservationDate ?? a.venueBookingStartDate,
+    ).getTime();
+    const dateB = new Date(
+      b.deliveryDate ?? b.reservationDate ?? b.venueBookingStartDate,
+    ).getTime();
+    return dateB - dateA; // Sort by most recent date
   });
-
   res.status(200).json({
     status: 'success',
-    // deliveryOrders,
     totalOrdersArr,
+    totalDeliveryOrders: deliveryOrders.length,
+    highestDelivery: deliveryOrders.reduce(
+      (acc, cur) => (acc < cur.total ? cur.total : acc),
+      0,
+    ),
+    totalReservationOrders: reservationOrders.length,
+    highestReservation: reservationOrders.reduce(
+      (acc, cur) => (acc < cur.total ? cur.total : acc),
+      0,
+    ), // returns the orders with highest cost
+    totalVenueOrders: bookedVenueOrders.length,
+    highestVenueBooking: bookedVenueOrders.reduce(
+      (acc, cur) => (acc < cur.total ? cur.total : acc),
+      0,
+    ), // returns the orders with highest cost
   });
 });
+
+// Business user routes for overall cuisine operations - accept/reject/operations
