@@ -28,4 +28,11 @@ router.get(
   userController.getAllOrders,
 );
 
+// Business routes
+router.get(
+  '/get-food-menu',
+  authController.protect,
+  userController.getAllFoodMenuItems,
+);
+
 module.exports = router;

@@ -1,7 +1,10 @@
 const BookedVenue = require('../models/bookedVenueModel');
+const Cuisine = require('../models/cuisineModel');
 const Delivery = require('../models/deliveryModel');
+const FoodMenu = require('../models/foodItemModal');
 const Reservation = require('../models/reservationModel');
 const User = require('../models/userModel');
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 const filterObj = (obj, ...allowedFields) => {
@@ -84,3 +87,20 @@ exports.getAllOrders = catchAsync(async (req, res, next) => {
 });
 
 // Business user routes for overall cuisine operations - accept/reject/operations
+exports.getAllFoodMenuItems = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const userCuisine = await Cuisine.findOne({ userId: user._id });
+
+  if (!userCuisine) {
+    return next(new AppError('User does not have any cuisines', 404));
+  }
+
+  const foodMenu = await FoodMenu.findById(userCuisine.foodMenu);
+
+  res.status(200).json({
+    status: 'success',
+    foodMenu,
+  });
+});
+
+// exports.getAllVenues
