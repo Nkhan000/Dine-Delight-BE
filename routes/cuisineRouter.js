@@ -37,7 +37,8 @@ router
 router
   .route('/update-menu-items')
   .post(authController.protect, cuisineController.addItemsToMenu)
-  .patch(cuisineController.cuisineExist, cuisineController.removeItemsFromMenu);
+  .patch(authController.protect, cuisineController.removeItemsFromMenu)
+  .patch(authController.protect, cuisineController.updateItemsFromMenu);
 
 // -----------------REVIEW ROUTES FOR A CUISINES-------------------- //
 

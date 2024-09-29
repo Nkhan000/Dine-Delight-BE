@@ -138,7 +138,8 @@ exports.addItemsToMenu = catchAsync(async (req, res, next) => {
 
 exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
   const user = req.user;
-  const foodMenu = await FoodMenu.findOne({ cuisineId: user.id });
+  const cuisine = await Cuisine.findOne({ userId: user.id });
+  const foodMenu = await FoodMenu.findOne({ cuisineId: cuisine.id });
   if (!foodMenu) {
     return next(new AppError('No food menu found for this user', 404));
   }
@@ -151,6 +152,37 @@ exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: `food item from menu has been removed`,
+  });
+});
+
+exports.updateItemsFromMenu = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const cuisine = await Cuisine.findOne({ userId: user._id });
+  const foodMenu = await FoodMenu.findOne({ cuisineId: cuisine._id });
+  if (!foodMenu) {
+    return next(new AppError('No food menu for given was found', 404));
+  }
+  const updatedItem = req.body;
+  const { foodItems } = foodMenu;
+
+  const updatedFoodItems = foodItems.map((item) => {
+    if (item._id.equals(updatedItem._id)) {
+      return {
+        ...item,
+        ...updatedItem,
+      };
+    }
+    return item;
+  });
+
+  foodMenu.foodItems = updatedFoodItems;
+  await foodMenu.save();
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      foodMenu,
+    },
   });
 });
 

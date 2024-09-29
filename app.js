@@ -1,7 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
 const cuisineRoute = require('./routes/cuisineRouter');
-// const reservationRoute = require('./routes/reservationRouter');
 const venueRoute = require('./routes/venueBookingRouter');
 const reservationRoute = require('./routes/reservationRouter');
 const OAuthRoute = require('./routes/OAuthRouter');
@@ -36,7 +35,7 @@ app.use(
   cors({
     origin: 'http://localhost:5173', // Allow your frontend URL
     credentials: true, // Allow credentials (cookies, authorization headers)
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Allowed methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
   }),
 );
