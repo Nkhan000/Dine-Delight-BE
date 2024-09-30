@@ -166,7 +166,7 @@ exports.updateItemsFromMenu = catchAsync(async (req, res, next) => {
   const { foodItems } = foodMenu;
 
   const updatedFoodItems = foodItems.map((item) => {
-    if (item._id.equals(updatedItem._id)) {
+    if (item._id.equals(updatedItem.itemId)) {
       return {
         ...item,
         ...updatedItem,
