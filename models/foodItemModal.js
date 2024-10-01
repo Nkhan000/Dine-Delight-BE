@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
+const { trim, isLowercase } = require('validator');
 
 const foodItemSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    // unique: true,
+    trim: true,
+    lowercase: true,
+    unique: true,
   },
   prices: {
     type: Object,
@@ -12,18 +15,26 @@ const foodItemSchema = new mongoose.Schema({
   },
   quantityPerServing: {
     type: String,
+    trim: true,
+    lowercase: true,
     required: true,
   },
   type: {
     type: String,
+    trim: true,
+    lowercase: true,
     required: true,
   },
   category: {
     type: String,
+    trim: true,
+    lowercase: true,
     required: true,
   },
   mainIngredients: {
     type: [String],
+    trim: true,
+    lowercase: true,
     required: true,
   },
   image: {
@@ -34,6 +45,9 @@ const foodItemSchema = new mongoose.Schema({
 
 const foodMenuSchema = new mongoose.Schema({
   foodItems: [foodItemSchema],
+  categories: {
+    type: [String],
+  },
   cuisineId: {
     type: mongoose.Schema.ObjectId,
     ref: 'Cuisine',

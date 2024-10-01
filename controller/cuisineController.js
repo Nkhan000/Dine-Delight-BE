@@ -2,11 +2,7 @@ const Cuisine = require('./../models/cuisineModel');
 const APIFeatures = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
-const Reservation = require('../models/reservationModel');
 const FoodMenu = require('../models/foodItemModal');
-const Delivery = require('../models/deliveryModel');
-const User = require('../models/userModel');
-// const BookingMenu = require('../models/bookingsVenueModel');
 const VenuesMenu = require('../models/bookingsVenueModel');
 
 exports.cuisineExist = catchAsync(async (req, res, next) => {
@@ -119,20 +115,28 @@ exports.addItemsToMenu = catchAsync(async (req, res, next) => {
 
   // Use 'some' to check for duplicate item names
   const itemExists = foodMenu.foodItems.some(
-    (item) => item.name === req.body.name,
+    (item) => item.name === req.body.name.trim().toLowerCase(),
   );
   if (itemExists) {
     return next(new AppError('An item with the same name already exists', 403));
   }
 
   // Add new food item and save the updated menu
-  foodMenu.foodItems.push(req.body);
-  await foodMenu.save(); // This will persist the changes
+  // foodMenu.foodItems.push(req.body);
+
+  const updatedFoodMenu = await FoodMenu.findOneAndUpdate(
+    { cuisineId: cuisine._id },
+    {
+      $push: { foodItems: req.body },
+      $addToSet: { categories: req.body.category },
+    },
+    { new: true },
+  );
 
   res.status(200).json({
     status: 'success',
     message: 'A food item was added to the menu',
-    foodMenu,
+    foodMenu: updatedFoodMenu,
   });
 });
 
