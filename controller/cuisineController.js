@@ -148,14 +148,32 @@ exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
     return next(new AppError('No food menu found for this user', 404));
   }
 
-  const IDsArray = Object.values(req.body);
-  foodMenu.foodItems = foodMenu.foodItems.filter(
-    (item) => !IDsArray.includes(item.id),
+  const IDsArray = Object.values(req.body.itemId);
+  const removedItemCategory = req.body.itemCategory;
+
+  const updatedMenu = await FoodMenu.findOneAndUpdate(
+    { cuisineId: cuisine._id },
+    { $pull: { foodItems: { _id: { $in: IDsArray } } } }, // $in to see if the ids is inside the array, for single value like string {_id : strVal}
+    { new: true },
   );
-  await foodMenu.save();
+
+  const isCategoryStillInTheMenu = updatedMenu.foodItems.some(
+    (item) => item.category === removedItemCategory,
+  );
+
+  if (!isCategoryStillInTheMenu) {
+    await FoodMenu.findOneAndUpdate(
+      { cuisineId: cuisine._id },
+      {
+        $pull: { categories: removedItemCategory },
+      },
+      { new: true },
+    );
+  }
+
   res.status(200).json({
     status: 'success',
-    message: `food item from menu has been removed`,
+    message: `food item(s) from menu has been removed`,
   });
 });
 
