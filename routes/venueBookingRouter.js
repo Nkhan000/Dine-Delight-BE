@@ -12,4 +12,8 @@ router
   .route('/')
   .get(authController.protect, venueController.getAVenueBookingDetail);
 
+// ---------------- VENUE ROUTES FOR A CUISINE (BUSINESS) --------------------- //
+router
+  .route('/get-all-venues')
+  .get(authController.protect, venueController.getAllVenueDetailBS);
 module.exports = router;

@@ -60,7 +60,7 @@ router
   .route('/add-new-venue')
   .post(authController.protect, cuisineController.addVenueItem);
 
-// ---------------- DELIVERY ROUTEES FOR A CUISINE --------------------- //
+// ---------------- DELIVERY ROUTES FOR A CUISINE --------------------- //
 
 router
   .route('/delivery/new')
@@ -73,4 +73,5 @@ router
 router
   .route('/business/delivery/all/:cuisineId')
   .get(deliveryController.getAllDeliveryDataBS);
+
 module.exports = router;

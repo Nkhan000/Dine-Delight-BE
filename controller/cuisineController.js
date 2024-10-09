@@ -4,6 +4,7 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const FoodMenu = require('../models/foodItemModal');
 const VenuesMenu = require('../models/bookingsVenueModel');
+const mongoose = require('mongoose');
 
 exports.cuisineExist = catchAsync(async (req, res, next) => {
   const cuisine = await Cuisine.findById(req.params.id);
@@ -127,8 +128,8 @@ exports.addItemsToMenu = catchAsync(async (req, res, next) => {
   const updatedFoodMenu = await FoodMenu.findOneAndUpdate(
     { cuisineId: cuisine._id },
     {
-      $push: { foodItems: req.body },
-      $addToSet: { categories: req.body.category },
+      $push: { foodItems: req.body }, // pushes the new item object to the items Array
+      $addToSet: { categories: req.body.category }, // acts as a set if item already exists in the array the not add it to the category
     },
     { new: true },
   );
@@ -148,12 +149,12 @@ exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
     return next(new AppError('No food menu found for this user', 404));
   }
 
-  const IDsArray = Object.values(req.body.itemId);
   const removedItemCategory = req.body.itemCategory;
+  const idToRemove = req.body.itemId;
 
-  const updatedMenu = await FoodMenu.findOneAndUpdate(
+  let updatedMenu = await FoodMenu.findOneAndUpdate(
     { cuisineId: cuisine._id },
-    { $pull: { foodItems: { _id: { $in: IDsArray } } } }, // $in to see if the ids is inside the array, for single value like string {_id : strVal}
+    { $pull: { foodItems: { _id: { $in: idToRemove } } } }, // $in to see if the ids is inside the array, for single value like string {_id : strVal}
     { new: true },
   );
 
@@ -162,7 +163,7 @@ exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
   );
 
   if (!isCategoryStillInTheMenu) {
-    await FoodMenu.findOneAndUpdate(
+    updatedMenu = await FoodMenu.findOneAndUpdate(
       { cuisineId: cuisine._id },
       {
         $pull: { categories: removedItemCategory },
@@ -174,6 +175,7 @@ exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: `food item(s) from menu has been removed`,
+    foodMenu: updatedMenu,
   });
 });
 
@@ -185,26 +187,35 @@ exports.updateItemsFromMenu = catchAsync(async (req, res, next) => {
     return next(new AppError('No food menu for given was found', 404));
   }
   const updatedItem = req.body;
-  const { foodItems } = foodMenu;
 
-  const updatedFoodItems = foodItems.map((item) => {
-    if (item._id.equals(updatedItem.itemId)) {
-      return {
-        ...item,
-        ...updatedItem,
-      };
-    }
-    return item;
-  });
+  let updatedMenu = await FoodMenu.findOneAndUpdate(
+    {
+      cuisineId: cuisine._id,
+      'foodItems._id': updatedItem.itemId, // This matches the _id of the food item
+    },
+    {
+      $set: { 'foodItems.$': updatedItem }, // The positional operator $ to update the matched item
+      $addToSet: { categories: updatedItem.category },
+    },
+    { new: true }, // Return the updated document
+  );
 
-  foodMenu.foodItems = updatedFoodItems;
-  await foodMenu.save();
+  const updatedFoodItems = updatedMenu.foodItems;
+
+  // Update the `categories` array to only keep categories associated with the updated foodItems
+  const currentCategories = updatedFoodItems
+    .map((item) => item.category)
+    .filter((category, index, self) => self.indexOf(category) === index);
+
+  // Update the categories array in the document
+  updatedMenu.categories = currentCategories;
+
+  // Save the updated FoodMenu with the filtered categories
+  await updatedMenu.save();
 
   res.status(200).json({
     status: 'success',
-    data: {
-      foodMenu,
-    },
+    foodMenu: updatedMenu,
   });
 });
 

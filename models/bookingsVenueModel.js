@@ -8,6 +8,10 @@ const bookingItemSchema = new mongoose.Schema({
   availableTime: {
     type: Date,
   },
+  isAvailable: {
+    type: Boolean,
+    default: true,
+  },
   pricePerDay: {
     type: String,
     required: true,

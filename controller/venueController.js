@@ -2,6 +2,7 @@ const BookedVenue = require('../models/bookedVenueModel');
 const VenuesMenu = require('../models/bookingsVenueModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const Cuisine = require('../models/cuisineModel');
 
 exports.createAVenueBooking = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
@@ -48,3 +49,13 @@ exports.getAVenueBookingDetail = catchAsync(async (req, res, next) => {
 });
 
 // routes to be implemented for businesses
+exports.getAllVenueDetailBS = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const cuisine = await Cuisine.findOne({ userId: user._id });
+  const venues = await VenuesMenu.findOne({ cuisineId: cuisine._id });
+
+  res.status(200).json({
+    status: 'success',
+    venues,
+  });
+});
