@@ -70,7 +70,9 @@ if (process.env.NODE_ENV === 'development') {
 app.use(helmet());
 
 //middleware serving static file
-app.use(express.static(`${__dirname}/pubic`));
+app.use('/public', express.static(`${__dirname}/public`));
+// app.use('/public', express.static(`public`));
+// app.use('/public', express.static(path.join(__dirname, 'public')));
 
 //middleware -> data from the body is added to the request using this middleware
 app.use(express.json({ limit: '10kb' }));

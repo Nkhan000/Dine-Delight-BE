@@ -20,12 +20,14 @@ const foodItemSchema = new mongoose.Schema({
     required: true,
   },
   type: {
+    // veg, non-veg
     type: String,
     trim: true,
     lowercase: true,
     required: true,
   },
   category: {
+    //
     type: String,
     trim: true,
     lowercase: true,
@@ -39,7 +41,7 @@ const foodItemSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    default: 'food-001.jpg',
+    // default: 'food-001.jpg',
   },
 });
 

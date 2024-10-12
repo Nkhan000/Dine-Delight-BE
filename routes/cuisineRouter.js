@@ -2,7 +2,7 @@ const express = require('express');
 const cuisineController = require('../controller/cuisineController');
 const authController = require('../controller/authController');
 const reviewController = require('../controller/reviewController');
-const reservationController = require('../controller/reservationController');
+const foodMenuController = require('../controller/foodMenuController');
 const deliveryController = require('../controller/deliveryController');
 
 const router = express.Router();
@@ -36,9 +36,23 @@ router
 
 router
   .route('/update-menu-items')
-  .post(authController.protect, cuisineController.addItemsToMenu)
-  .put(authController.protect, cuisineController.updateItemsFromMenu)
-  .patch(authController.protect, cuisineController.removeItemsFromMenu);
+  .post(
+    authController.protect,
+    foodMenuController.uploadFoodMenuPhoto,
+    foodMenuController.resizeFoodMenuPhoto,
+    foodMenuController.addNewItemToMenu,
+  )
+  .put(
+    authController.protect,
+    foodMenuController.uploadFoodMenuPhoto,
+    foodMenuController.resizeFoodMenuPhoto,
+    foodMenuController.updateItemsFromMenu,
+  )
+  .patch(
+    authController.protect,
+    foodMenuController.uploadFoodMenuPhoto,
+    foodMenuController.removeItemsFromMenu,
+  );
 
 // -----------------REVIEW ROUTES FOR A CUISINES-------------------- //
 
