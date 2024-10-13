@@ -6,6 +6,7 @@ const { imageUploader } = require('./imageUploader');
 const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
 
 const upload = imageUploader();
 
@@ -15,7 +16,7 @@ exports.resizeFoodMenuPhoto = (req, res, next) => {
   if (!req.file) return next();
 
   // if file then resize and name the file
-  req.file.filename = `${req.body.name?.split(' ')?.join('_').toLowerCase()}-${req.user._id}.jpeg`;
+  req.file.filename = `${req.body.name?.split(' ')?.join('_').toLowerCase()}-${req.user._id}-${Date.now()}.jpeg`;
   // image comes in the buffer because of multer.memoryStorage
   sharp(req.file.buffer)
     .resize(500, 500)
@@ -113,23 +114,53 @@ exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
 exports.updateItemsFromMenu = catchAsync(async (req, res, next) => {
   const user = req.user;
   const cuisine = await Cuisine.findOne({ userId: user._id });
-  const foodMenu = await FoodMenu.findOne({ cuisineId: cuisine._id });
+  const foodMenu = await FoodMenu.findOne({
+    cuisineId: cuisine._id,
+    foodItems: {
+      $elemMatch: { _id: new mongoose.Types.ObjectId(req.body.itemId) },
+    },
+  });
+
   if (!foodMenu) {
-    return next(new AppError('No food menu for given was found', 404));
+    return next(new AppError('No food menu for given item was found', 404));
   }
+
+  const item = foodMenu.foodItems.filter(
+    (item) => item._id.toString() == req.body.itemId,
+  );
+
+  console.log(item);
+
+  const existingImagePath = item[0].image;
+  const fullPath = path.join(__dirname, '..', 'public', existingImagePath);
+
+  console.log('Full Image Path:', fullPath);
+
   const updatedItem = req.body;
   updatedItem.prices = JSON.parse(updatedItem.prices);
-
   if (req.file) {
-    updatedItem.image = `img/foodmenu/${req.file.filename}`;
+    if (fs.existsSync(fullPath)) {
+      try {
+        fs.unlinkSync(fullPath);
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      console.log('Image path is not defined: Ignoring');
+    }
 
-    // fs.unlink(`public/${ItemToBeUpdate.image}`, (err) => {
-    //   if (err) {
-    //     console.log('Error deleting the file');
-    //     return;
-    //   }
-    //   console.log('File deleted Successfully ');
-    // });
+    // console.log(req.file);
+    updatedItem.image = `img/foodmenu/${req.file.filename}`;
+  } else {
+    // console.log('___________');
+    // const testPath = updatedItem.image;
+    // console.log(
+    //   testPath.replace(
+    //     `${item[0].name.split(' ').join('_')}`,
+    //     `${req.body.name.split(' ').join('_')}`,
+    //   ),
+    // );
+    // console.log(testPath);
   }
 
   let updatedMenu = await FoodMenu.findOneAndUpdate(
