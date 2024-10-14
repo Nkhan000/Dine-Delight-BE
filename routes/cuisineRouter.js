@@ -32,7 +32,7 @@ router
   .route('/:id')
   .get(cuisineController.cuisineExist, cuisineController.getCuisineData);
 
-// FOOD MENU
+// -----------------FOOD MENU ROUTES FOR A CUISINES (BUSINESS ROUTE) -------------------- //
 
 router
   .route('/update-menu-items')
@@ -48,11 +48,7 @@ router
     foodMenuController.resizeFoodMenuPhoto,
     foodMenuController.updateItemsFromMenu,
   )
-  .patch(
-    authController.protect,
-    foodMenuController.uploadFoodMenuPhoto,
-    foodMenuController.removeItemsFromMenu,
-  );
+  .patch(authController.protect, foodMenuController.removeItemsFromMenu);
 
 // -----------------REVIEW ROUTES FOR A CUISINES-------------------- //
 

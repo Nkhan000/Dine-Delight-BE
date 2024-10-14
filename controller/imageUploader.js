@@ -1,7 +1,7 @@
 const multer = require('multer');
 const AppError = require('../utils/appError');
 
-exports.imageUploader = () => {
+exports.imageUploader = (limitSize = 10) => {
   // const multerStorage = multer.diskStorage({
   //   destination: (req, file, cb) => {
   //     cb(null, `public/img/${fileName}`);
@@ -29,7 +29,7 @@ exports.imageUploader = () => {
   };
 
   const upload = multer({
-    limits: { fileSize: 20 * 1024 * 1024 },
+    limits: { fileSize: limitSize * 1024 * 1024 },
     storage: multerStorage,
     fileFilter: multerFilter,
   });

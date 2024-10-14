@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const bookingItemSchema = new mongoose.Schema({
+const venueItemSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -26,16 +26,16 @@ const bookingItemSchema = new mongoose.Schema({
   },
   images: {
     type: [String],
-    default: ['food-001.jpg'],
+    // default: ['food-001.jpg'],
   },
 });
 
-const bookingsMenuSchema = new mongoose.Schema({
-  bookingItems: [bookingItemSchema],
+const venuesMenuSchema = new mongoose.Schema({
+  venueItems: [venueItemSchema],
   cuisineId: {
     type: mongoose.Schema.ObjectId,
     ref: 'Cuisine',
   },
 });
-const VenuesMenu = mongoose.model('VenuesMenu', bookingsMenuSchema);
+const VenuesMenu = mongoose.model('VenuesMenu', venuesMenuSchema);
 module.exports = VenuesMenu;

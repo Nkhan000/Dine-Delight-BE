@@ -27,6 +27,32 @@ exports.resizeFoodMenuPhoto = (req, res, next) => {
   next();
 };
 
+const deleteImageFromFolder = async (fullPath) => {
+  if (fs.existsSync(fullPath)) {
+    try {
+      await fs.promises.unlink(fullPath);
+      console.log('File deleted successfully');
+    } catch (err) {
+      console.log('Error deleting the file:', err);
+    }
+  } else {
+    console.log('Image path is not defined or file does not exist: Ignoring');
+  }
+};
+
+const renameImageFromFolder = async (fullOldPath, fullNewPath) => {
+  if (fs.existsSync(fullOldPath)) {
+    try {
+      await fs.promises.rename(fullOldPath, fullNewPath);
+      console.log('File renamed successfully ');
+    } catch (err) {
+      console.log('Error renaming the image. Try again . . .');
+    }
+  } else {
+    console.log('Image path is not defined or file does not exist: Ignoring');
+  }
+};
+
 // CONTROLLER FOR ADDING A NEW ITEM TO THE FOOD MENU
 exports.addNewItemToMenu = catchAsync(async (req, res, next) => {
   const user = req.user;
@@ -52,6 +78,7 @@ exports.addNewItemToMenu = catchAsync(async (req, res, next) => {
   const newItemObj = req.body;
 
   newItemObj.prices = JSON.parse(newItemObj.prices);
+  newItemObj.mainIngredients = newItemObj.mainIngredients.split(',');
 
   if (req.file) {
     newItemObj.image = `img/foodmenu/${req.file.filename}`;
@@ -76,7 +103,12 @@ exports.addNewItemToMenu = catchAsync(async (req, res, next) => {
 exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
   const user = req.user;
   const cuisine = await Cuisine.findOne({ userId: user.id });
-  const foodMenu = await FoodMenu.findOne({ cuisineId: cuisine.id });
+  const foodMenu = await FoodMenu.findOne({
+    cuisineId: cuisine._id,
+    foodItems: {
+      $elemMatch: { _id: new mongoose.Types.ObjectId(req.body.itemId) },
+    },
+  });
   if (!foodMenu) {
     return next(new AppError('No food menu found for this user', 404));
   }
@@ -84,12 +116,24 @@ exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
   const removedItemCategory = req.body.itemCategory;
   const idToRemove = req.body.itemId;
 
+  const itemToBeRemoved = foodMenu.foodItems.filter(
+    (item) => item._id.toString() === idToRemove,
+  )[0];
+
+  const fullImgPath = path.join(
+    __dirname,
+    '..',
+    'public',
+    itemToBeRemoved.image,
+  );
+
   let updatedMenu = await FoodMenu.findOneAndUpdate(
     { cuisineId: cuisine._id },
     { $pull: { foodItems: { _id: { $in: idToRemove } } } }, // $in to see if the ids is inside the array, for single value like string {_id : strVal}
     { new: true },
   );
 
+  // SEE if the category of the removed Item is still in the menu
   const isCategoryStillInTheMenu = updatedMenu.foodItems.some(
     (item) => item.category === removedItemCategory,
   );
@@ -103,6 +147,8 @@ exports.removeItemsFromMenu = catchAsync(async (req, res, next) => {
       { new: true },
     );
   }
+
+  deleteImageFromFolder(fullImgPath);
 
   res.status(200).json({
     status: 'success',
@@ -125,42 +171,32 @@ exports.updateItemsFromMenu = catchAsync(async (req, res, next) => {
     return next(new AppError('No food menu for given item was found', 404));
   }
 
-  const item = foodMenu.foodItems.filter(
+  const itemToBeUpdated = foodMenu.foodItems.filter(
     (item) => item._id.toString() == req.body.itemId,
-  );
+  )[0];
 
-  console.log(item);
-
-  const existingImagePath = item[0].image;
+  const existingImagePath = itemToBeUpdated.image;
   const fullPath = path.join(__dirname, '..', 'public', existingImagePath);
-
-  console.log('Full Image Path:', fullPath);
 
   const updatedItem = req.body;
   updatedItem.prices = JSON.parse(updatedItem.prices);
-  if (req.file) {
-    if (fs.existsSync(fullPath)) {
-      try {
-        fs.unlinkSync(fullPath);
-      } catch (err) {
-        console.log(err);
-      }
-    } else {
-      console.log('Image path is not defined: Ignoring');
-    }
+  updatedItem.mainIngredients = updatedItem.mainIngredients.split(',');
 
-    // console.log(req.file);
+  if (req.file) {
+    deleteImageFromFolder(fullPath);
     updatedItem.image = `img/foodmenu/${req.file.filename}`;
-  } else {
-    // console.log('___________');
-    // const testPath = updatedItem.image;
-    // console.log(
-    //   testPath.replace(
-    //     `${item[0].name.split(' ').join('_')}`,
-    //     `${req.body.name.split(' ').join('_')}`,
-    //   ),
-    // );
-    // console.log(testPath);
+  } else if (!req.file && itemToBeUpdated.name !== updatedItem.name) {
+    const oldPath = itemToBeUpdated.image;
+    const fullOldPath = path.join(__dirname, '..', 'public', oldPath);
+
+    const newPath = oldPath.replace(
+      itemToBeUpdated.name.split(' ').join('_'),
+      updatedItem.name.split(' ').join('_'),
+    );
+    const fullNewPath = path.join(__dirname, '..', 'public', newPath);
+
+    renameImageFromFolder(fullOldPath, fullNewPath);
+    updatedItem.image = newPath;
   }
 
   let updatedMenu = await FoodMenu.findOneAndUpdate(
