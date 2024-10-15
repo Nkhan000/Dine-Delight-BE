@@ -14,13 +14,14 @@ router
 
 // ---------------- VENUE ROUTES FOR A CUISINE (BUSINESS) --------------------- //
 router
-  .route('/add-a-new-venue')
+  .route('/update-venue')
+  .all(authController.protect)
   .post(
-    authController.protect,
     venueController.uploadVenueImage,
     venueController.resizeVenueImage,
     venueController.addANewVenueItem,
-  );
+  )
+  .patch(venueController.removeAVenueItem);
 router
   .route('/get-all-venues')
   .get(authController.protect, venueController.getAllVenueDetailBS);

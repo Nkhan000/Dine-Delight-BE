@@ -36,6 +36,9 @@ const venuesMenuSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Cuisine',
   },
+  partySizeList: {
+    type: [String],
+  },
 });
 const VenuesMenu = mongoose.model('VenuesMenu', venuesMenuSchema);
 module.exports = VenuesMenu;

@@ -6,6 +6,20 @@ const Cuisine = require('../models/cuisineModel');
 const { imageUploader } = require('./imageUploader');
 const sharp = require('sharp');
 const path = require('path');
+const fs = require('fs');
+
+const deleteImageFromFolder = async (fullPath) => {
+  if (fs.existsSync(fullPath)) {
+    try {
+      await fs.promises.unlink(fullPath);
+      console.log('File deleted successfully');
+    } catch (err) {
+      console.log('Error deleting the file:', err);
+    }
+  } else {
+    console.log('Image path is not defined or file does not exist: Ignoring');
+  }
+};
 
 exports.createAVenueBooking = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
@@ -100,15 +114,68 @@ exports.addANewVenueItem = catchAsync(async (req, res, next) => {
   const newVenueItem = req.body;
   newVenueItem.images = [];
 
-  if (req.files) {
+  if (req.files && req.files.length > 0) {
     req.files.map((file) =>
       newVenueItem.images.push(`img/venuemenu/${file.filename}`),
     );
   }
-  venuesMenu.venueItems.push(newVenueItem);
-  await venuesMenu.save();
+  const updatedMenu = await VenuesMenu.findOneAndUpdate(
+    { cuisineId: cuisineId },
+    {
+      $push: { venueItems: newVenueItem },
+      $addToSet: { partySizeArr: newVenueItem.aprPartySize },
+    },
+    { new: true },
+  );
+
   res.status(200).json({
     status: 'success',
-    result: venuesMenu,
+    result: updatedMenu,
+  });
+});
+
+exports.removeAVenueItem = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const cuisineId = user.cuisineId;
+  const venuesMenu = await VenuesMenu.findOne({ cuisineId });
+
+  if (!venuesMenu) {
+    return next(
+      new AppError('No venue for the given item was found. Try again !!'),
+    );
+  }
+
+  const IDToBeRemoved = req.body.venueId;
+  const existingPartySize = req.body.aprPartySize;
+  const itemImgPath = req.body.images;
+
+  const fullPathArr = itemImgPath.map((img) =>
+    path.join(__dirname, '..', 'public', img),
+  );
+
+  // const fullImagePath = path.join(__dirname, '..', 'public', itemImgPath);
+
+  let updatedMenu = await VenuesMenu.findOneAndUpdate(
+    { cuisineId: cuisineId },
+    { $pull: { venueItems: { _id: IDToBeRemoved } } },
+    { new: true },
+  );
+
+  const partySizeStillExist = updatedMenu.venueItems.some(
+    (item) => item.aprPartySize == existingPartySize,
+  );
+
+  if (!partySizeStillExist) {
+    updatedMenu = await VenuesMenu.findOneAndUpdate(
+      { cuisineId: cuisineId },
+      { $pull: { partySizeList: existingPartySize } },
+      { new: true },
+    );
+  }
+  fullPathArr.forEach((item) => deleteImageFromFolder(item));
+
+  res.status(200).json({
+    status: 'success',
+    updatedMenu,
   });
 });

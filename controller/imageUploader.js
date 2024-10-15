@@ -14,7 +14,7 @@ exports.imageUploader = (limitSize = 10) => {
   //     );
   //   },
   // });
-  const multerStorage = multer.memoryStorage();
+  const multerStorage = multer.memoryStorage(); // for storing image inside the buffer to resize them.
 
   const multerFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('image')) {
