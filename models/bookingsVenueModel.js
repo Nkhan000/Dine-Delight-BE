@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const venueItemSchema = new mongoose.Schema({
   name: {
     type: String,
+    unique: true,
     required: true,
   },
   availableTime: {
@@ -20,7 +21,7 @@ const venueItemSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  goodForOcassions: {
+  goodForOccassions: {
     type: [String],
     required: true,
   },

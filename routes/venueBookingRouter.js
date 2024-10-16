@@ -22,6 +22,11 @@ router
     venueController.addANewVenueItem,
   )
   .patch(venueController.removeAVenueItem);
+
+router
+  .route('/delete-images')
+  .delete(authController.protect, venueController.removeSelectedImages);
+
 router
   .route('/get-all-venues')
   .get(authController.protect, venueController.getAllVenueDetailBS);

@@ -166,6 +166,10 @@ exports.updateItemsFromMenu = catchAsync(async (req, res, next) => {
       $elemMatch: { _id: new mongoose.Types.ObjectId(req.body.itemId) },
     },
   });
+  // const foodMenu = await FoodMenu.findOne({
+  //   cuisineId: cuisine._id,
+  //   'foodItems._id' : req.bod.itemId
+  // });
 
   if (!foodMenu) {
     return next(new AppError('No food menu for given item was found', 404));
