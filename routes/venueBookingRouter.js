@@ -21,7 +21,13 @@ router
     venueController.resizeVenueImage,
     venueController.addANewVenueItem,
   )
-  .patch(venueController.removeAVenueItem);
+  .patch(
+    authController.protect,
+    venueController.uploadVenueImage,
+    venueController.resizeVenueImage,
+    venueController.updateAVenueItem,
+  )
+  .delete(venueController.removeAVenueItem);
 
 router
   .route('/delete-images')

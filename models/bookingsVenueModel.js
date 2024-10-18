@@ -27,6 +27,9 @@ const venueItemSchema = new mongoose.Schema({
   },
   images: {
     type: [String],
+    min: 1,
+    max: 5,
+
     // default: ['food-001.jpg'],
   },
 });

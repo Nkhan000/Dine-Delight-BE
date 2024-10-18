@@ -166,10 +166,6 @@ exports.updateItemsFromMenu = catchAsync(async (req, res, next) => {
       $elemMatch: { _id: new mongoose.Types.ObjectId(req.body.itemId) },
     },
   });
-  // const foodMenu = await FoodMenu.findOne({
-  //   cuisineId: cuisine._id,
-  //   'foodItems._id' : req.bod.itemId
-  // });
 
   if (!foodMenu) {
     return next(new AppError('No food menu for given item was found', 404));
@@ -182,9 +178,11 @@ exports.updateItemsFromMenu = catchAsync(async (req, res, next) => {
   const existingImagePath = itemToBeUpdated.image;
   const fullPath = path.join(__dirname, '..', 'public', existingImagePath);
 
-  const updatedItem = req.body;
-  updatedItem.prices = JSON.parse(updatedItem.prices);
-  updatedItem.mainIngredients = updatedItem.mainIngredients.split(',');
+  const updatedItem = {
+    ...req.body,
+    prices: JSON.parse(prices),
+    mainIngredients: mainIngredients.split(','),
+  };
 
   if (req.file) {
     deleteImageFromFolder(fullPath);
@@ -215,17 +213,12 @@ exports.updateItemsFromMenu = catchAsync(async (req, res, next) => {
     { new: true }, // Return the updated document
   );
 
-  const updatedFoodItems = updatedMenu.foodItems;
-
   // Update the `categories` array to only keep categories associated with the updated foodItems
-  const currentCategories = updatedFoodItems
-    .map((item) => item.category)
-    .filter((category, index, self) => self.indexOf(category) === index);
+  updatedMenu.categories = [
+    ...new Set(updatedMenu.foodItems.map((item) => item.category)),
+  ];
 
-  // Update the categories array in the document
-  updatedMenu.categories = currentCategories;
-
-  // Save the updated FoodMenu with the filtered categories
+  // Save the updated menu with the filtered categories
   await updatedMenu.save();
 
   res.status(200).json({

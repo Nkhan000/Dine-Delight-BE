@@ -9,15 +9,14 @@ const path = require('path');
 const fs = require('fs');
 const { default: mongoose } = require('mongoose');
 
-const deleteImageFromFolder = (imgsArr) => {
+const deleteImageFromFolder = async (imgsArr) => {
   const fullPathArr = imgsArr.map((img) =>
     path.join(__dirname, '..', 'public', img),
   );
-  fullPathArr.forEach(async (fullPath) => {
+  for (const fullPath of fullPathArr) {
     if (fs.existsSync(fullPath)) {
       try {
         await fs.promises.unlink(fullPath);
-        console.log('File deleted successfully');
       } catch (err) {
         throw new AppError('Error deleting the image', 403);
       }
@@ -27,7 +26,20 @@ const deleteImageFromFolder = (imgsArr) => {
         403,
       );
     }
-  });
+  }
+};
+
+const renameImageFromFolder = async (fullOldPath, fullNewPath) => {
+  if (fs.existsSync(fullOldPath)) {
+    try {
+      await fs.promises.rename(fullOldPath, fullNewPath);
+      console.log('File renamed successfully ');
+    } catch (err) {
+      console.log('Error renaming the image. Try again . . .');
+    }
+  } else {
+    console.log('Image path is not defined or file does not exist: Ignoring');
+  }
 };
 
 exports.createAVenueBooking = catchAsync(async (req, res, next) => {
@@ -180,7 +192,11 @@ exports.removeAVenueItem = catchAsync(async (req, res, next) => {
     );
   }
   // fullPathArr.forEach((item) => deleteImageFromFolder(item));
-  deleteImageFromFolder(itemImgPath);
+  try {
+    await deleteImageFromFolder(itemImgPath);
+  } catch (err) {
+    return next(new AppError(`Error deleting the image, ${err}`, 500));
+  }
 
   res.status(200).json({
     status: 'success',
@@ -190,9 +206,12 @@ exports.removeAVenueItem = catchAsync(async (req, res, next) => {
 
 exports.updateAVenueItem = catchAsync(async (req, res, next) => {
   const user = req.user;
+  const { itemId } = req.body;
+
+  // Find the venue menu by cuisine ID and venue item ID
   const venuesMenu = await VenuesMenu.findOne({
     cuisineId: user.cuisineId,
-    'venueItems._id': new mongoose.Types.ObjectId(req.body.itemId),
+    'venueItems._id': new mongoose.Types.ObjectId(itemId),
   });
 
   if (!venuesMenu)
@@ -202,6 +221,84 @@ exports.updateAVenueItem = catchAsync(async (req, res, next) => {
         404,
       ),
     );
+
+  // Find the specific venue item to update
+  const itemToBeUpdated = venuesMenu.venueItems.filter(
+    (item) => item._id.toString() === itemId,
+  )[0];
+
+  const updateData = { ...req.body };
+
+  // Handle image uploads
+  if (req.files && req.files.length > 0) {
+    const totalImagesCount = req.files.length + itemToBeUpdated.images.length;
+
+    if (totalImagesCount <= 5) {
+      const newImagePaths = req.files.map(
+        (img) => `/img/venuemenu/${img.filename}`,
+      );
+
+      // Merge existing and new images
+      updateData.images = [
+        ...itemToBeUpdated.images, // existing images
+        ...newImagePaths,
+      ];
+    } else {
+      return next(
+        new AppError('You can only have up to 5 images for a venue item.', 400),
+      );
+    }
+  } else {
+    // If no new images are uploaded, retain existing ones
+    updateData.images = itemToBeUpdated.images;
+  }
+
+  // If the name is changed, update the image paths
+  if (itemToBeUpdated.name !== req.body.name) {
+    const existingName = itemToBeUpdated.name.split(' ').join('_');
+    const newName = req.body.name.split(' ').join('_');
+
+    // Update image paths with the new name
+    const updatedImagePaths = itemToBeUpdated.images.map((imgPath) => {
+      const newImgPath = imgPath.replace(existingName, newName);
+
+      // Rename the file on the server
+      const oldFullPath = path.join(__dirname, '..', 'public', imgPath);
+      const newFullPath = path.join(__dirname, '..', 'public', newImgPath);
+      try {
+        renameImageFromFolder(oldFullPath, newFullPath); // Function to rename the image file
+      } catch (err) {
+        return next(new AppError(`Error renaming the object. ${err}`, 500));
+      }
+
+      return newImgPath; // Return the new image path
+    });
+
+    // Merge any renamed paths with newly uploaded paths
+    if (updateData.images) {
+      updateData.images = [
+        ...updatedImagePaths, // Renamed image paths
+        ...updateData.images.filter(
+          // Only include new paths not already renamed
+          (img) => !updatedImagePaths.includes(img),
+        ),
+      ];
+    } else {
+      updateData.images = updatedImagePaths;
+    }
+  }
+
+  // Perform the update in one query
+  await VenuesMenu.findOneAndUpdate(
+    { cuisineId: user.cuisineId, 'venueItems._id': itemId },
+    {
+      $set: {
+        'venueItems.$': updateData, // Set the entire venue item with updated data
+      },
+      $addToSet: { partySizeList: updateData.aprPartySize }, // Add to partySizeList if aprPartySize is provided
+    },
+    { new: true }, // Return the updated document
+  );
 
   res.status(200).json({
     status: 'success',
