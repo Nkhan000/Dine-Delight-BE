@@ -22,21 +22,15 @@ const cuisineSchema = new mongoose.Schema({
   },
   tableReservationPrice: {
     type: Number,
-    validate: {
-      validator: function (val) {
-        this.services.includes('reservation') ? val : 0;
-      },
+    set: function (val) {
+      return this.services.includes('reservation') ? val : 0;
     },
-    default: 25,
   },
   deliveryPrice: {
     type: Number,
-    validate: {
-      validator: function (val) {
-        this.services.includes('delivery') ? val : 0;
-      },
+    set: function (val) {
+      return this.services.includes('delivery') ? val : 0;
     },
-    default: 5,
   },
   verified: {
     type: Boolean,
@@ -60,7 +54,7 @@ const cuisineSchema = new mongoose.Schema({
   },
   ratingsAverage: {
     type: Number,
-    default: 2.5,
+    default: 2,
     min: [1.0, 'ratings must be above 0'],
     max: [5.0, 'ratings must be lower than 5'],
   },
@@ -95,17 +89,25 @@ const cuisineSchema = new mongoose.Schema({
   highlightImages: {
     type: [String],
   },
-  availableTableReservationTime: {
+  availableTableReservationTimeSlots: {
     type: [String],
-    required: true,
+    set: function (val) {
+      return this.services.includes('reservation') ? val : [];
+    },
+    // required: true,
   },
   tableTypeOptions: {
     type: [String],
-    required: true,
+    set: function (val) {
+      return this.services.includes('reservation') ? val : [];
+    },
+    // required: true,
   },
   reservationPartySizeOptions: {
     type: [Number],
-    required: true,
+    set: function (val) {
+      return this.services.includes('reservation') ? val : [];
+    },
   },
   onGoingDeliveriesId: {
     type: [mongoose.Schema.ObjectId],

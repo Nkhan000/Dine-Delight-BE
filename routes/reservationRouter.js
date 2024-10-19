@@ -20,4 +20,8 @@ router
   .route('/all-reservations')
   .get(authController.protect, reservationController.getAllReservationByUserId);
 
+router
+  .route('/add-party-size')
+  .post(authController.protect, reservationController.addPartySize);
+
 module.exports = router;

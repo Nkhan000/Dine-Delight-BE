@@ -207,20 +207,3 @@ exports.getService = catchAsync(async (req, res, next) => {
     },
   });
 });
-
-//BOOKINGS CONTROLLLERS
-exports.addVenueItem = catchAsync(async (req, res, next) => {
-  const user = req.user;
-  const cuisineId = user.cuisineId;
-  const bookingsMenu = await VenuesMenu.findOne({ cuisineId });
-  if (!bookingsMenu)
-    return next(new AppError('No bookings menu found for given cuisine', 404));
-  // console.log(bookingsMenu.bookingItems);
-
-  bookingsMenu.bookingItems.push(req.body);
-  await bookingsMenu.save();
-  res.status(200).json({
-    status: 'success',
-    result: bookingsMenu,
-  });
-});

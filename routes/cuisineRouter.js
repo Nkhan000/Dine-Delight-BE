@@ -66,9 +66,9 @@ router
 router.route('/get-review/:reviewId').get(reviewController.getAReview);
 
 // ---------------- VENUE BOOKING ITEMS AND BOOKINGS ROUTES FOR A CUISINE --------------------- //
-router
-  .route('/add-new-venue')
-  .post(authController.protect, cuisineController.addVenueItem);
+// router
+//   .route('/add-new-venue')
+//   .post(authController.protect, cuisineController.addVenueItem);
 
 // ---------------- DELIVERY ROUTES FOR A CUISINE --------------------- //
 

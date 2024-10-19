@@ -145,6 +145,77 @@ exports.verifyVerificationCode = catchAsync(async (req, res, next) => {
     status: 'success',
   });
 });
+// RESERVATION OPTIONS CONTROLLER //
+exports.addPartySize = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const cuisine = await Cuisine.findById(user.cuisineId);
+  if (!cuisine) {
+    return next(
+      new AppError('No Cuisine for given user was found. Try again !!', 404),
+    );
+  }
+
+  const newPartySize = req.body.partySize;
+  if (newPartySize > 0 && newPartySize <= 100) {
+    await Cuisine.findByIdAndUpdate(user.cuisineId, {
+      $addToSet: { reservationPartySizeOptions: newPartySize },
+    });
+  } else {
+    return next(new AppError('Error adding new partySize. Try again', 400));
+  }
+
+  res.status(200).json({
+    status: 'success',
+  });
+});
+
+exports.addTableType = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const cuisine = await Cuisine.findById(user.cuisineId);
+  if (!cuisine) {
+    return next(
+      new AppError('No Cuisine for given user was found. Try again !!', 404),
+    );
+  }
+
+  const newTableType = `${req.body.tableType}`;
+  if (newTableType.length > 0 && newTableType.length <= 100) {
+    await Cuisine.findByIdAndUpdate(user.cuisineId, {
+      $addToSet: { tableTypeOptions: newTableType },
+    });
+  } else {
+    return next(new AppError('Error adding new table type. Try again', 400));
+  }
+
+  res.status(200).json({
+    status: 'success',
+  });
+});
+
+exports.addTimeSlot = catchAsync(async (req, res, next) => {
+  const user = req.user;
+  const cuisine = await Cuisine.findById(user.cuisineId);
+  if (!cuisine) {
+    return next(
+      new AppError('No Cuisine for given user was found. Try again !!', 404),
+    );
+  }
+
+  const newTimeSlot = `${req.body.timeSlot}`;
+  if (newTimeSlot.length > 0 && newTimeSlot.length <= 100) {
+    await Cuisine.findByIdAndUpdate(user.cuisineId, {
+      $addToSet: { availaableTableReservationTimeSlots: newTimeSlot },
+    });
+  } else {
+    return next(new AppError('Error adding new TIME SLOT. Try again', 400));
+  }
+
+  res.status(200).json({
+    status: 'success',
+  });
+});
+
+// --------------------------- //
 
 // CREATE A RESERVATION IN A CUISINE
 exports.createAReservation = catchAsync(async (req, res, next) => {
