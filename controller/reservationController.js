@@ -156,12 +156,25 @@ exports.addPartySize = catchAsync(async (req, res, next) => {
   }
 
   const newPartySize = req.body.partySize;
-  if (newPartySize > 0 && newPartySize <= 100) {
-    await Cuisine.findByIdAndUpdate(user.cuisineId, {
-      $addToSet: { reservationPartySizeOptions: newPartySize },
-    });
+  const typeofOp = req.body.typeOfOp;
+  const maximumSize = Math.max(
+    ...cuisine.reservationPartySizeOptions.map(Number),
+  );
+
+  if (newPartySize > 0 && newPartySize <= maximumSize) {
+    if (typeofOp === 'add') {
+      await Cuisine.findByIdAndUpdate(user.cuisineId, {
+        $addToSet: { reservationPartySizeOptions: newPartySize },
+      });
+    } else if (typeofOp === 'remove') {
+      await Cuisine.findByIdAndUpdate(user.cuisineId, {
+        $pull: { reservationPartySizeOptions: newPartySize },
+      });
+    } else {
+      return next(new AppError('No type of operation was provided', 400));
+    }
   } else {
-    return next(new AppError('Error adding new partySize. Try again', 400));
+    return next(new AppError('Invalid party size Provided', 400));
   }
 
   res.status(200).json({
@@ -179,10 +192,20 @@ exports.addTableType = catchAsync(async (req, res, next) => {
   }
 
   const newTableType = `${req.body.tableType}`;
+  const typeOfOp = req.body.typeOfOp;
+
   if (newTableType.length > 0 && newTableType.length <= 100) {
-    await Cuisine.findByIdAndUpdate(user.cuisineId, {
-      $addToSet: { tableTypeOptions: newTableType },
-    });
+    if (typeOfOp == 'add') {
+      await Cuisine.findByIdAndUpdate(user.cuisineId, {
+        $addToSet: { tableTypeOptions: newTableType },
+      });
+    } else if (typeOfOp === 'remove') {
+      await Cuisine.findByIdAndUpdate(user.cuisineId, {
+        $pull: { tableTypeOptions: newTableType },
+      });
+    } else {
+      return next(new AppError('Error ! Operetion type was not provided', 500));
+    }
   } else {
     return next(new AppError('Error adding new table type. Try again', 400));
   }
@@ -202,10 +225,20 @@ exports.addTimeSlot = catchAsync(async (req, res, next) => {
   }
 
   const newTimeSlot = `${req.body.timeSlot}`;
+  const typeOfOp = req.body.typeOfOp;
+
   if (newTimeSlot.length > 0 && newTimeSlot.length <= 100) {
-    await Cuisine.findByIdAndUpdate(user.cuisineId, {
-      $addToSet: { availaableTableReservationTimeSlots: newTimeSlot },
-    });
+    if (typeOfOp == 'add') {
+      await Cuisine.findByIdAndUpdate(user.cuisineId, {
+        $addToSet: { availaableTableReservationTimeSlots: newTimeSlot },
+      });
+    } else if (typeOfOp == 'remove') {
+      await Cuisine.findByIdAndUpdate(user.cuisineId, {
+        $pull: { availaableTableReservationTimeSlots: newTimeSlot },
+      });
+    } else {
+      return next(new AppError('Error ! Operetion type was not provided', 500));
+    }
   } else {
     return next(new AppError('Error adding new TIME SLOT. Try again', 400));
   }
