@@ -140,6 +140,9 @@ const cuisineSchema = new mongoose.Schema({
 // Document middleware -> runs before .save() or .create();
 cuisineSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+  this.reservationPartySizeOptions = this.reservationPartySizeOptions.sort(
+    (a, b) => a - b,
+  );
   next();
 });
 

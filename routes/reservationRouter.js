@@ -25,9 +25,9 @@ router
   .post(authController.protect, reservationController.addPartySize);
 router
   .route('/add-time-slot')
-  .post(authController.protect, reservationController.addPartySize);
+  .post(authController.protect, reservationController.addTimeSlot);
 router
-  .route('/add-table-option')
-  .post(authController.protect, reservationController.addPartySize);
+  .route('/add-table-type')
+  .post(authController.protect, reservationController.addTableType);
 
 module.exports = router;

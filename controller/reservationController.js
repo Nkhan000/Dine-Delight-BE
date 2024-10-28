@@ -2,97 +2,15 @@ const Reservation = require('./../models/reservationModel');
 const Cuisine = require('./../models/cuisineModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-// const mongoose = require('mongoose');
-const APIFeatures = require('../utils/apiFeatures');
-const User = require('../models/userModel');
+
 const sendEmail = require('../utils/emailHandler');
 
 // GET ALL RESERVATIONS FOR ADMIN
 exports.getAllReservations = catchAsync(async (req, res, next) => {
-  // if (req.user.role !== 'admin')
-  //   return next(new AppError('You are not allowed perform this task', 401));
-  // const reservationsData = await Reservation.find();
-
   res.status(200).json({
     status: 'success',
-    // data: {
-    //   reservationsData,
-    // },
   });
 });
-
-// GET ALL RESERVATIONS FOR BUSINESS
-/*
-exports.getAllReservationsForBussiness = catchAsync(async (req, res, next) => {
-  const cuisineId = req.params.id;
-  // console.log(cuisineId === req.user._id);
-
-  const reservationsData = Reservation.find({
-    cuisineId: { $eq: cuisineId },
-  });
-
-  const reservationsWithApiFeatures = new APIFeatures(
-    reservationsData,
-    req.query,
-  )
-    .filter()
-    .limitFields()
-    .sort()
-    .pagination();
-
-  // Total number of pages
-  const allReservations = await reservationsWithApiFeatures.query;
-  const reservationLength = new APIFeatures(
-    Reservation.find({
-      cuisineId: { $eq: cuisineId },
-    }),
-    req.query,
-  )
-    .sort()
-    .limitFields()
-    .filter();
-
-  const reservationsLengthQuery = await reservationLength.query;
-
-  res.status(200).json({
-    status: 'success',
-    results: allReservations.length,
-    totalDocsLength: reservationsLengthQuery.length,
-    data: {
-      allReservations,
-    },
-  });
-});*/
-
-// GET OR FIND A RESERVATION BY ID
-/*
-exports.getAReservation = catchAsync(async (req, res, next) => {
-  // Should only be accessible by admin, cuisine owner and customer
-  // must not be accessible by other cuisines or customer
-
-  const reservation = await Reservation.findById(
-    req.params.reservationId,
-  ).populate({
-    path: 'cuisineId userId',
-    select: 'name address email',
-  });
-  // Clause to only make the reservation details accessed by customer who made it and by cuisine owner
-  if (
-    !req.user._id.equals(reservation.userId._id) &&
-    !req.user._id.equals(reservation.cuisineId._id)
-  ) {
-    return next(
-      new AppError('You are not allowed to perform this action', 401),
-    );
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      reservation,
-    },
-  });
-});*/
 
 exports.sendVerificationCode = catchAsync(async (req, res, next) => {
   const user = req.user;
@@ -157,9 +75,7 @@ exports.addPartySize = catchAsync(async (req, res, next) => {
 
   const newPartySize = req.body.partySize;
   const typeofOp = req.body.typeOfOp;
-  const maximumSize = Math.max(
-    ...cuisine.reservationPartySizeOptions.map(Number),
-  );
+  const maximumSize = 100;
 
   if (newPartySize > 0 && newPartySize <= maximumSize) {
     if (typeofOp === 'add') {
@@ -179,6 +95,7 @@ exports.addPartySize = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
+    // data: updatedCuisine,
   });
 });
 
@@ -225,16 +142,18 @@ exports.addTimeSlot = catchAsync(async (req, res, next) => {
   }
 
   const newTimeSlot = `${req.body.timeSlot}`;
+  const [hour, min] = newTimeSlot.split(':').map(Number);
+  console.log(hour, min);
   const typeOfOp = req.body.typeOfOp;
 
-  if (newTimeSlot.length > 0 && newTimeSlot.length <= 100) {
-    if (typeOfOp == 'add') {
+  if (newTimeSlot.length > 0) {
+    if (typeOfOp == 'add' && hour <= 22 && min <= 55) {
       await Cuisine.findByIdAndUpdate(user.cuisineId, {
-        $addToSet: { availaableTableReservationTimeSlots: newTimeSlot },
+        $addToSet: { availableTableReservationTimeSlots: newTimeSlot },
       });
     } else if (typeOfOp == 'remove') {
       await Cuisine.findByIdAndUpdate(user.cuisineId, {
-        $pull: { availaableTableReservationTimeSlots: newTimeSlot },
+        $pull: { availableTableReservationTimeSlots: newTimeSlot },
       });
     } else {
       return next(new AppError('Error ! Operetion type was not provided', 500));

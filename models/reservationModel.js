@@ -14,9 +14,7 @@ const tableReservationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // reservationDateStr: {
-  //   type :
-  // }
+
   reservedOnDate: {
     type: Date,
     default: Date.now(),
@@ -97,7 +95,7 @@ const tableReservationSchema = new mongoose.Schema({
 //   next();
 // });
 
-//MODEL
+// TTL index to remove reservation after few days after the reservation date
 tableReservationSchema.index(
   { reservationDate: 1 },
   { expireAfterSeconds: 60 * 60 * 24 * 7 },
