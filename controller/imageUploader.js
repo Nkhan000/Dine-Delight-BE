@@ -23,6 +23,7 @@ exports.imageUploader = (limitSize = 10) => {
       cb(
         new AppError(
           'Not an image. Please upload only image files. (jpg, jpeg, png, ...etc)',
+          401,
         ),
       );
     }

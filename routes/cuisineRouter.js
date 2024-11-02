@@ -4,6 +4,8 @@ const authController = require('../controller/authController');
 const reviewController = require('../controller/reviewController');
 const foodMenuController = require('../controller/foodMenuController');
 const deliveryController = require('../controller/deliveryController');
+const venueController = require('../controller/venueController');
+const highlightsController = require('../controller/highlightsController');
 
 const router = express.Router();
 
@@ -14,9 +16,6 @@ router.route('/').get(cuisineController.getAllCuisines);
 router
   .route('/create-new-cuisine')
   .post(authController.protect, cuisineController.createACuisine);
-
-// CREATE A CUSINE
-// router.route("/").get(cuisineController.createACuisine)
 
 // IMPLEMENT A ROUTE TO GET A CUISINE DATA FOR BUSINESS DASHBOARD CONTAINING ALL THE USEFULL INFORMATION AND INSIGHTS OF THE CUISINE
 router
@@ -66,9 +65,6 @@ router
 router.route('/get-review/:reviewId').get(reviewController.getAReview);
 
 // ---------------- VENUE BOOKING ITEMS AND BOOKINGS ROUTES FOR A CUISINE --------------------- //
-// router
-//   .route('/add-new-venue')
-//   .post(authController.protect, cuisineController.addVenueItem);
 
 // ---------------- DELIVERY ROUTES FOR A CUISINE --------------------- //
 
@@ -83,5 +79,7 @@ router
 router
   .route('/business/delivery/all/:cuisineId')
   .get(deliveryController.getAllDeliveryDataBS);
+
+// ---------------- HIGHLIGHTS (BUSINESS) --------------------- //
 
 module.exports = router;

@@ -184,7 +184,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
       subject: 'Password reset token (VALID FOR 10 MINS)',
       message,
     });
-    console.log(message);
+    // console.log(message);
     res.status(200).json({
       status: 'success',
       message: 'Reset Token was sent to your email',
@@ -193,7 +193,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
     user.passwordResetToken = undefined;
     user.passwordResetTokenExpires = undefined;
     await user.save({ validateBeforeSave: false });
-    console.log(err);
+    // console.log(err);
     return next(
       new AppError(
         'An Error occured while sending the email. Please try again',

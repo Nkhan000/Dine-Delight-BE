@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cuisineRoute = require('./routes/cuisineRouter');
 const venueRoute = require('./routes/venueBookingRouter');
+const highlightRoute = require('./routes/highlightsRouter');
 const reservationRoute = require('./routes/reservationRouter');
 const OAuthRoute = require('./routes/OAuthRouter');
 const userRoute = require('./routes/userRouter');
@@ -39,20 +40,6 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
   }),
 );
-
-// Set Referrer-Policy header
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', '*');
-//   res.header('Access-Control-Allow-Credentials', 'true');
-//   res.header(
-//     'Access-Control-Allow-Headers',
-//     'Origin, X-Requested-With, Content-Type, Accept',
-//   );
-
-//   res.header('Access-Control-Allow-Methods', 'GET,POST');
-//   res.header('Referrer-Policy', 'no-referrer-when-downgrade');
-//   next();
-// });
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -104,7 +91,7 @@ app.use('/api/v1/user', userRoute);
 app.use('/api/v1/auth', OAuthRoute);
 app.use('/api/v1/reservations', reservationRoute);
 app.use('/api/v1/venue', venueRoute);
-
+app.use('/api/v1/highlights', highlightRoute);
 app.use((req, res, next) => {
   console.log('Cookies:', req.cookies);
   next();

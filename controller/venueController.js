@@ -102,11 +102,12 @@ exports.getAllVenueDetailBS = catchAsync(async (req, res, next) => {
 // -------------------- MIDDLEWARES ----------------------
 const upload = imageUploader(15);
 
-exports.uploadVenueImage = upload.array('images', 5);
+exports.uploadVenueImage = upload.array('images', 5); // uploads the file from the request to the file buffer
 
 exports.resizeVenueImage = async (req, res, next) => {
   if (!req.files || req.files.length === 0) return next();
 
+  // req.files is what we sent to the buffer for resizing
   req.files = await Promise.all(
     req.files.map(async (file, idx) => {
       const filename = `${req.body.name.split(' ').join('_').toLowerCase()}-${req.user._id}-${Date.now()}-${idx}.jpeg`;

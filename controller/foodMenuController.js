@@ -177,11 +177,13 @@ exports.updateItemsFromMenu = catchAsync(async (req, res, next) => {
 
   const existingImagePath = itemToBeUpdated.image;
   const fullPath = path.join(__dirname, '..', 'public', existingImagePath);
+  // let pricesObj = JSON.parse(req.body.prices);
+  // console.log(pricesObj);
 
   const updatedItem = {
     ...req.body,
-    prices: JSON.parse(prices),
-    mainIngredients: mainIngredients.split(','),
+    prices: JSON.parse(req.body.prices),
+    mainIngredients: req.body.mainIngredients.split(','),
   };
 
   if (req.file) {
